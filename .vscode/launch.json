@@ -1,0 +1,93 @@
+{
+    // 使用 IntelliSense 了解相关属性。 
+    // 悬停以查看现有属性的描述。
+    // 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: 当前文件",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
+            "name": "vqa",
+            "type": "python",
+            "request": "launch",
+            "program": "src/tasks/vqa.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "env": {
+                "CUDA_VISIBLE_DEVICES": "1"
+            },
+            "args": [
+                "--train",
+                "train,nominival",
+                "--valid",
+                "minival",
+                "--llayers",
+                "9",
+                "--xlayers",
+                "5",
+                "--rlayers",
+                "5",
+                "--loadLXMERTQA",
+                "snap/pretrained/model",
+                "--batchSize",
+                "32",
+                "--optim",
+                "bert",
+                "--lr",
+                "5e-5",
+                "--epochs",
+                "4",
+                "--tqdm",
+                "--output",
+                "snap/vqa/vqa_lxr955_tiny/",
+                "--tiny"
+            ]
+        },
+        {
+            "name": "more",
+            "type": "python",
+            "request": "launch",
+            "program": "src/tasks/more.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "env": {
+                "CUDA_VISIBLE_DEVICES": "1"
+            },
+            "args": [
+                "--train",
+                "train,nominival",
+                "--valid",
+                "",
+                "--llayers",
+                "9",
+                "--xlayers",
+                "5",
+                "--rlayers",
+                "5",
+                "--loadLXMERT",
+                "snap/pretrained/model",
+                "--batchSize",
+                "32",
+                "--optim",
+                "bert",
+                "--lr",
+                "5e-5",
+                "--epochs",
+                "4",
+                "--tqdm",
+                "--output",
+                "snap/more/more_lxr955_tiny/",
+                "--tiny",
+                "--epochfreeze",
+                "10",
+                // "--cltrain"
+            ]
+        }
+    ]
+}

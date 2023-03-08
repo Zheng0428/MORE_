@@ -23,7 +23,7 @@ from copy import deepcopy
 HIDDEN_NUM = 20000
 FINAL_LEN = 20
 
-DataTuple = collections.namedtuple("DataTuple", 'dataset loader evaluator')
+DataTuple = collections.namedtuple("DataTuple", 'dataset loader')
 
 def get_data_tuple(splits: str, bs:int, shuffle=False, drop_last=False) -> DataTuple:
     dset = VQADataset(splits)

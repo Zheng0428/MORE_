@@ -52,7 +52,7 @@ def get_data_tuple1(splits: str, bs:int, shuffle=False, drop_last=False) -> Data
 class MORE:
     def __init__(self):
         # Datasets
-        self.train_tuple = get_data_tuple(
+        self.train_tuple = get_data_tuple1(
             args.train, bs=args.batch_size, shuffle=True, drop_last=True
         )
         if args.valid != "":
@@ -177,7 +177,7 @@ class MORE:
         self.save("LAST")
 
     def train(self, train_tuple, eval_tuple, epoch_freeze):
-        dset, loader, evaluator = train_tuple
+        dset, loader = train_tuple
         iter_wrapper = (lambda x: tqdm(x, total=len(loader))) if args.tqdm else (lambda x: x)
 
         best_valid = 0.
@@ -191,7 +191,7 @@ class MORE:
 
         for epoch in range(args.epochs):
             quesid2ans = {}
-            for i, (ques_id, state, boxes, action, target) in iter_wrapper(enumerate(loader)):
+            for i, (timesteps, states, actions, rtg, traj_mask) in iter_wrapper(enumerate(loader)):
                 self.model.train()
                 self.optim.zero_grad()   #梯度归零
                 reward = torch.round(torch.rand(32, 1))

@@ -13,7 +13,7 @@ from tqdm import tqdm
 from param import args
 from pretrain.qa_answer_table import load_lxmert_qa
 from tasks.more_model import MOREModel, CLModel
-from tasks.more_data import MiniGridDataset
+from tasks.data_preprocessing import MiniGridDataset
 from tasks.vqa_data import VQADataset, VQATorchDataset, VQAEvaluator
 
 from lxrt.modeling import MLPModel
@@ -40,13 +40,13 @@ def get_data_tuple(splits: str, bs:int, shuffle=False, drop_last=False) -> DataT
 
 def get_data_tuple1(splits: str, bs:int, shuffle=False, drop_last=False) -> DataTuple:
     traj_dataset = MiniGridDataset(dataset_path='/home/zhangge/ZTY_Adam/MORE/data/more/minigrid_traj.pkl')
-    traj_data_loader = DataLoader(
+    traj_data_loader = DataLoader(             
         traj_dataset,
         batch_size=bs,
         shuffle=True,
         pin_memory=True,
         drop_last=True
-        )
+        )                         #shuffle = Ture :Randomly generated idx
     return DataTuple(dataset=traj_dataset, loader=traj_data_loader)
 
 class MORE:
@@ -196,8 +196,10 @@ class MORE:
                 self.optim.zero_grad()   #梯度归零
                 reward = torch.round(torch.rand(32, 1))
                 target = 'turn left'
-                state, boxes, reward = state.to(self.device), boxes.to(self.device), reward.to(self.device)
-                output = self.model(state, boxes, action, reward, target, self.student_model)
+                continue
+                states, boxes, rtg = states.to(self.device), boxes.to(self.device), rtg.to(self.device)
+                
+                output = self.model(states, boxes, actions, rtg, target, self.student_model)
                 #assert logit.dim() == target.dim() == 2
                 loss = self.bce_loss(output, target)
                 loss = loss * output.size(1)

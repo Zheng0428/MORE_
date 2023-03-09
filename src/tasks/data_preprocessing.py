@@ -41,7 +41,6 @@ def extend_tensor(tensor1, tensor2):
 
 class MiniGridDataset(Dataset):
     def __init__(self, dataset_path, max_length=1000, reward_with_timestep=False):
-
         self.reward_with_timestep = reward_with_timestep
         self.max_length = max_length
         self.observations = None
@@ -49,8 +48,8 @@ class MiniGridDataset(Dataset):
         self.rewards = None
         self.dones = None
         self.instructions = []
-        self.episode_idxs = None
-        self.episode_lengths = None
+        self.episode_idxs = None              #当前处在整个数据集中episode的最后一位的序号
+        self.episode_lengths = None           #当前处在的episode的长度
         self.rtg = None
 
         # load dataset
@@ -76,6 +75,7 @@ class MiniGridDataset(Dataset):
         '''
 
     def __len__(self):
+        print (len(self.observations))
         return len(self.observations)
 
     def __getitem__(self, index):
@@ -83,7 +83,7 @@ class MiniGridDataset(Dataset):
         returns the rest of the given episode from the indexed time step
         '''
         episode_length = self.episode_lengths[index]
-        episode_end_idx = self.episode_lengths[index]
+        episode_end_idx = self.episode_idxs[index]
         padding_length = self.max_length - episode_length
 
         states = self.observations[episode_end_idx + 1 - episode_length:episode_end_idx + 1]
@@ -93,6 +93,7 @@ class MiniGridDataset(Dataset):
                             dim=0)
 
         actions = self.actions[episode_end_idx + 1 - episode_length:episode_end_idx + 1]
+        #Fixed length to max_length
         actions = torch.cat([actions,
                             torch.zeros(([padding_length] + list(actions.shape[1:])),
                             dtype=actions.dtype)],
@@ -100,15 +101,15 @@ class MiniGridDataset(Dataset):
 
         rtg = self.rtg[episode_end_idx + 1 - episode_length:episode_end_idx + 1]
         rtg = torch.cat([rtg,
-                            torch.zeros(([padding_length] + list(rtg.shape[1:])),
-                            dtype=states.dtype)],
-                            dim=0)
+                        torch.zeros(([padding_length] + list(rtg.shape[1:])),
+                        dtype=states.dtype)],
+                        dim=0)
 
         instructions = self.instructions[episode_end_idx + 1 - episode_length:episode_end_idx + 1]
         instructions.extend([0 for i in range(padding_length)])
 
         timesteps = torch.arange(start=0, end=self.max_length, step=1)
-
+        # 用来表示哪一些数据是拼接用的
         traj_mask = torch.cat([torch.ones(episode_length, dtype=torch.long),
                                 torch.zeros(padding_length, dtype=torch.long)],
                                 dim=0)

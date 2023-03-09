@@ -154,7 +154,7 @@ class MOREModel(nn.Module):
         mix_seq = torch.cat((x[0], x[1]), 1)   #mix the output of the lxmert and the reward (numpy)
         output = student_model(mix_seq)
         target = self.tokenizer.batch_encode_plus(texts, padding = 'max_length', truncation = True, return_tensors = 'pt', max_length = MAX_VQA_LENGTH, add_special_tokens = True, return_attention_mask = True, return_token_type_ids = False)
-        #output = self.more_decoder(inputs_embeds = seq, labels = target.data['input_ids'].cuda())        #Be sure to pay attention to whether the input sequences are of the same length  #past_key_values = past 后面有时间可以加上
+        output = self.more_decoder(inputs_embeds = output, labels = target.data['input_ids'].cuda(), attention_mask = None)        #Be sure to pay attention to whether the input sequences are of the same length  #past_key_values = past 后面有时间可以加上
         #loss, accuray = self.calculate_loss_and_accuracy(outputs = output.logits, labels = action.data['input_ids'], device = 'cuda')
         return output
 

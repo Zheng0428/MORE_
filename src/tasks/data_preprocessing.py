@@ -4,6 +4,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.utils.data import Dataset, DataLoader
+from transformers import LxmertTokenizerFast
 
 '''
 Usage:
@@ -20,7 +21,7 @@ data_iter = iter(traj_data_loader)
 
 example:
 
-timesteps, states, actions, returns_to_go, traj_mask = next(data_iter)
+timesteps, states, actions, returns_to_go, traj_mask, instructions_input_ids, instructions_token_type_ids, instructions_attention_mask = next(data_iter)
 
 context_length -> 1000 (long enough to contain all episodes, most will be shorter with padding)
 
@@ -29,6 +30,12 @@ states -> tensor[batch_size, context_length, 56, 56, 3]
 actions -> tensor[batch_size, context_length]
 returns_to_go -> tensor[batch_size, context_length]
 traj_mask -> tensor[batch_size, context_length]
+
+** added: tokenized instructions, set max_length of instructions to 32 **
+
+instructions_input_ids -> [batch_size, context_length, 32]
+instructions_token_type_ids -> [batch_size, context_length, 32]
+instructions_attention_mask -> [batch_size, context_length, 32]
 '''
 
 def extend_tensor(tensor1, tensor2):
@@ -40,7 +47,9 @@ def extend_tensor(tensor1, tensor2):
         return torch.cat((tensor1, tensor2), 0)
 
 class MiniGridDataset(Dataset):
-    def __init__(self, dataset_path, max_length=1000, reward_with_timestep=False):
+    def __init__(self, dataset_path, max_length=1000, tokenizer_config = 'unc-nlp/lxmert-base-uncased', reward_with_timestep=False):
+
+        self.tokenizer = LxmertTokenizerFast.from_pretrained(tokenizer_config)
         self.reward_with_timestep = reward_with_timestep
         self.max_length = max_length
         self.observations = None
@@ -48,8 +57,8 @@ class MiniGridDataset(Dataset):
         self.rewards = None
         self.dones = None
         self.instructions = []
-        self.episode_idxs = None              #当前处在整个数据集中episode的最后一位的序号
-        self.episode_lengths = None           #当前处在的episode的长度
+        self.episode_idxs = None
+        self.episode_lengths = None
         self.rtg = None
 
         # load dataset
@@ -75,7 +84,6 @@ class MiniGridDataset(Dataset):
         '''
 
     def __len__(self):
-        print (len(self.observations))
         return len(self.observations)
 
     def __getitem__(self, index):
@@ -93,7 +101,6 @@ class MiniGridDataset(Dataset):
                             dim=0)
 
         actions = self.actions[episode_end_idx + 1 - episode_length:episode_end_idx + 1]
-        #Fixed length to max_length
         actions = torch.cat([actions,
                             torch.zeros(([padding_length] + list(actions.shape[1:])),
                             dtype=actions.dtype)],
@@ -101,19 +108,31 @@ class MiniGridDataset(Dataset):
 
         rtg = self.rtg[episode_end_idx + 1 - episode_length:episode_end_idx + 1]
         rtg = torch.cat([rtg,
-                        torch.zeros(([padding_length] + list(rtg.shape[1:])),
-                        dtype=states.dtype)],
-                        dim=0)
+                            torch.zeros(([padding_length] + list(rtg.shape[1:])),
+                            dtype=states.dtype)],
+                            dim=0)
 
         instructions = self.instructions[episode_end_idx + 1 - episode_length:episode_end_idx + 1]
-        instructions.extend([0 for i in range(padding_length)])
+        instructions = self.tokenizer(instructions, return_tensors="pt", max_length=32, padding='max_length')
+        instructions_input_ids = torch.cat([instructions['input_ids'],
+                            torch.zeros(([padding_length] + list(instructions['input_ids'].shape[1:])),
+                            dtype=instructions['input_ids'].dtype)],
+                            dim=0)
+        instructions_token_type_ids = torch.cat([instructions['token_type_ids'],
+                            torch.zeros(([padding_length] + list(instructions['token_type_ids'].shape[1:])),
+                            dtype=instructions['token_type_ids'].dtype)],
+                            dim=0)
+        instructions_attention_mask = torch.cat([instructions['attention_mask'],
+                    torch.zeros(([padding_length] + list(instructions['attention_mask'].shape[1:])),
+                    dtype=instructions['attention_mask'].dtype)],
+                    dim=0)
 
         timesteps = torch.arange(start=0, end=self.max_length, step=1)
-        # 用来表示哪一些数据是拼接用的
+
         traj_mask = torch.cat([torch.ones(episode_length, dtype=torch.long),
                                 torch.zeros(padding_length, dtype=torch.long)],
                                 dim=0)
-        return  timesteps, states, actions, rtg, traj_mask #instructions
+        return  timesteps, states, actions, rtg, traj_mask, instructions_input_ids, instructions_token_type_ids, instructions_attention_mask
 
 
     def get_non_zero_idx(self, env):

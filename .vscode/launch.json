@@ -9,6 +9,9 @@
             "type": "python",
             "request": "launch",
             "program": "${file}",
+            "env": {
+                "CUDA_VISIBLE_DEVICES": "1"
+            },
             "console": "integratedTerminal",
             "justMyCode": true
         },
@@ -36,7 +39,7 @@
                 "--loadLXMERTQA",
                 "snap/pretrained/model",
                 "--batchSize",
-                "32",
+                "64",
                 "--optim",
                 "bert",
                 "--lr",
@@ -73,7 +76,7 @@
                 "--loadLXMERT",
                 "snap/pretrained/model",
                 "--batchSize",
-                "32",
+                "3200",
                 "--optim",
                 "bert",
                 "--lr",

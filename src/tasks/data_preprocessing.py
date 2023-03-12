@@ -5,7 +5,19 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.utils.data import Dataset, DataLoader
 from transformers import LxmertTokenizerFast
-
+#add for lxmert 
+from param import args
+from lxrt.entry import LXRTEncoder
+from more_model import MAX_VQA_LENGTH
+ACTION_SPACE={
+    0:"Move to the left direction.",
+    1:"Move to the right direction",
+    2:"Move upwards",
+    3:"Switch the current state or setting of something",
+    4:"Grab or take an item",
+    5:"Release or let go of an item",
+    6:"Indicates the completion of a task or a no-operation action"
+}
 '''
 Usage:
 
@@ -46,6 +58,18 @@ def extend_tensor(tensor1, tensor2):
     else:
         return torch.cat((tensor1, tensor2), 0)
 
+class LXMERT(nn.Module):
+    def __init__(self):
+        self.lxmert = LXRTEncoder(
+            args,
+            max_seq_length=MAX_VQA_LENGTH,
+            mode = 'l'
+        )
+    def forward(self, actions, states, pos):
+        x = self.more_encoder(actions, (states, pos)) 
+        lxrt_out = torch.cat((x[0], x[1]), 1)
+        return lxrt_out
+
 class MiniGridDataset(Dataset):
     def __init__(self, dataset_path, max_length=1000, tokenizer_config = 'unc-nlp/lxmert-base-uncased', reward_with_timestep=False):
 
@@ -60,6 +84,8 @@ class MiniGridDataset(Dataset):
         self.episode_idxs = None
         self.episode_lengths = None
         self.rtg = None
+        # init lxrt model
+        self.lxrt = LXMERT
 
         # load dataset
         with open(dataset_path, 'rb') as f:

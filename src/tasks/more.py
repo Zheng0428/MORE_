@@ -38,8 +38,8 @@ def get_data_tuple(splits: str, bs:int, shuffle=False, drop_last=False) -> DataT
     return DataTuple(dataset=dset, loader=data_loader, evaluator=evaluator)
 
 
-def get_data_tuple1(splits: str, bs:int, shuffle=False, drop_last=False) -> DataTuple:
-    traj_dataset = MiniGridDataset(dataset_path='/home/zhangge/ZTY_Adam/MORE/data/more/minigrid_traj.pkl')
+def get_data_tuple1(splits: str, bs:int, device, shuffle=False, drop_last=False) -> DataTuple:
+    traj_dataset = MiniGridDataset(dataset_path='/home/zhangge/ZTY_Adam/MORE/data/more/minigrid_traj.pkl', device = device)
     a = len(traj_dataset)
     traj_data_loader = DataLoader(             
         traj_dataset,
@@ -52,9 +52,17 @@ def get_data_tuple1(splits: str, bs:int, shuffle=False, drop_last=False) -> Data
 
 class MORE:
     def __init__(self):
+        # GPU options
+        if torch.cuda.is_available():
+            self.device = torch.device("cuda:1")
+        else:
+            print(
+                "Either an invalid device or CUDA is not available. Defaulting to CPU."
+            )
+            self.device = torch.device("cpu")
         # Datasets
         self.train_tuple = get_data_tuple1(
-            args.train, bs=args.batch_size, shuffle=True, drop_last=True
+            args.train, bs=args.batch_size, device=self.device, shuffle=True, drop_last=True
         )
         if args.valid != "":
             self.valid_tuple = get_data_tuple(
@@ -67,14 +75,7 @@ class MORE:
         # Model
         self.model = MOREModel() # Have already load the MORE_decoder weights
 
-        # GPU options
-        if torch.cuda.is_available():
-            self.device = torch.device("cuda")
-        else:
-            print(
-                "Either an invalid device or CUDA is not available. Defaulting to CPU."
-            )
-            self.device = torch.device("cpu")
+        
 
         self.model = self.model.to(self.device)
         if args.multiGPU:

@@ -8,6 +8,7 @@ import torch.nn.functional as F
 from torch.utils.data import Dataset, DataLoader
 from transformers import LxmertTokenizerFast
 from tasks.data_preprocessing.lxrt_dataload import LXMTDataLoad
+TMP = torch.rand(1000,56,768)
 '''
 Usage:
 
@@ -49,8 +50,8 @@ def extend_tensor(tensor1, tensor2):
         return torch.cat((tensor1, tensor2), 0)
 
 class MiniGridDataset(Dataset):
-    def __init__(self, dataset_path, max_length=1000, tokenizer_config = 'unc-nlp/lxmert-base-uncased', reward_with_timestep=False):
-
+    def __init__(self, dataset_path, max_length=1000, tokenizer_config = 'unc-nlp/lxmert-base-uncased', reward_with_timestep=False, device = 'cpu'):
+        self.device = device
         self.tokenizer = LxmertTokenizerFast.from_pretrained(tokenizer_config)
         self.reward_with_timestep = reward_with_timestep
         self.max_length = max_length
@@ -64,8 +65,7 @@ class MiniGridDataset(Dataset):
         self.rtg = None
         # init lxrt model
         self.lxrt_feature = None
-        device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu") 
-        self.lxrt_dataload = LXMTDataLoad(128, device)
+        self.lxrt_dataload = LXMTDataLoad(128, self.device)
 
         # load dataset
         with open(dataset_path, 'rb') as f:
@@ -88,6 +88,7 @@ class MiniGridDataset(Dataset):
             #observation = torch.as_tensor(self.trajectories[env]['observations'])
             state = torch.rand(action.shape[0], 36, 2048)
             pos = torch.rand(action.shape[0], 36, 4)
+            #action, state, pos = action.to(device), state.to(device), pos.to(device)
             self.lxrt_feature = extend_tensor(self.lxrt_feature,self.lxrt_dataload(action, state, pos))
 
         '''
@@ -144,14 +145,15 @@ class MiniGridDataset(Dataset):
         traj_mask = torch.cat([torch.ones(episode_length, dtype=torch.long),
                                 torch.zeros(padding_length, dtype=torch.long)],
                                 dim=0)
+        
         # lxrt ouput part
         # Randomly defined parameters for actions, states, poses
         lxrt_feature = self.lxrt_feature[episode_end_idx + 1 - episode_length:episode_end_idx + 1]
-        lxrt_feature = lxrt_feature.cpu()
-        lxrt_feature = torch.cat([lxrt_feature,
-                            torch.zeros(([padding_length] + list(lxrt_feature.shape[1:])),
-                            dtype=lxrt_feature.dtype)],
-                            dim=0)
+        lxrt_feature = TMP
+        # lxrt_feature = torch.cat([lxrt_feature.to('cpu'),
+        #                     torch.zeros(([padding_length] + list(lxrt_feature.shape[1:])),
+        #                     dtype=lxrt_feature.dtype)],
+        #                     dim=0)
         return lxrt_feature, rtg, actions, traj_mask, timesteps
         #return  timesteps, states, actions, rtg, traj_mask, instructions_input_ids, instructions_token_type_ids, instructions_attention_mask
 

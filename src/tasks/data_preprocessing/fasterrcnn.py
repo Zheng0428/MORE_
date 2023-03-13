@@ -19,7 +19,7 @@ Usage:
 faster_r_cnn = FasterRCNN_Visual_Feats()
 visual_feats, visual_pos = faster_r_cnn(images)
 #visual_feats -> (batch_size, 36, 2048)
-#visual_pos -> (batch_size, 36, 2048)
+#visual_pos -> (batch_size, 36, 4)
 
 # inputs from lxmert tokenizer
 model = LxmertModel.from_pretrained(config)

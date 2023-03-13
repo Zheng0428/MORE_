@@ -10,7 +10,7 @@
             "request": "launch",
             "program": "${file}",
             "env": {
-                "CUDA_VISIBLE_DEVICES": "1"
+                "CUDA_VISIBLE_DEVICES": "0, 1"
             },
             "console": "integratedTerminal",
             "justMyCode": true
@@ -59,9 +59,9 @@
             "program": "src/tasks/more.py",
             "console": "integratedTerminal",
             "justMyCode": true,
-            "env": {
-                "CUDA_VISIBLE_DEVICES": "1"
-            },
+            // "env": {
+            //     "CUDA_VISIBLE_DEVICES": "1"
+            // },
             "args": [
                 "--train",
                 "train,nominival",

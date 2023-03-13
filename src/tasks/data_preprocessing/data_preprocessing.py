@@ -1,3 +1,5 @@
+import sys
+sys.path.append("./src")
 import pickle
 import numpy as np
 import torch
@@ -5,19 +7,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.utils.data import Dataset, DataLoader
 from transformers import LxmertTokenizerFast
-#add for lxmert 
-from param import args
-from lxrt.entry import LXRTEncoder
-from more_model import MAX_VQA_LENGTH
-ACTION_SPACE={
-    0:"Move to the left direction.",
-    1:"Move to the right direction",
-    2:"Move upwards",
-    3:"Switch the current state or setting of something",
-    4:"Grab or take an item",
-    5:"Release or let go of an item",
-    6:"Indicates the completion of a task or a no-operation action"
-}
+from tasks.data_preprocessing.lxrt_dataload import LXMTDataLoad
 '''
 Usage:
 
@@ -58,18 +48,6 @@ def extend_tensor(tensor1, tensor2):
     else:
         return torch.cat((tensor1, tensor2), 0)
 
-class LXMERT(nn.Module):
-    def __init__(self):
-        self.lxmert = LXRTEncoder(
-            args,
-            max_seq_length=MAX_VQA_LENGTH,
-            mode = 'l'
-        )
-    def forward(self, actions, states, pos):
-        x = self.more_encoder(actions, (states, pos)) 
-        lxrt_out = torch.cat((x[0], x[1]), 1)
-        return lxrt_out
-
 class MiniGridDataset(Dataset):
     def __init__(self, dataset_path, max_length=1000, tokenizer_config = 'unc-nlp/lxmert-base-uncased', reward_with_timestep=False):
 
@@ -85,7 +63,9 @@ class MiniGridDataset(Dataset):
         self.episode_lengths = None
         self.rtg = None
         # init lxrt model
-        self.lxrt = LXMERT
+        self.lxrt_feature = None
+        device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu") 
+        self.lxrt_dataload = LXMTDataLoad(128, device)
 
         # load dataset
         with open(dataset_path, 'rb') as f:
@@ -103,6 +83,12 @@ class MiniGridDataset(Dataset):
             self.episode_idxs = extend_tensor(self.episode_idxs, episode_idxs)
             self.episode_lengths = extend_tensor(self.episode_lengths, episode_lengths)
             self.rtg = extend_tensor(self.rtg, self.get_rtg(env))
+            # lxmert output
+            action = torch.as_tensor(self.trajectories[env]['actions'])
+            #observation = torch.as_tensor(self.trajectories[env]['observations'])
+            state = torch.rand(action.shape[0], 36, 2048)
+            pos = torch.rand(action.shape[0], 36, 4)
+            self.lxrt_feature = extend_tensor(self.lxrt_feature,self.lxrt_dataload(action, state, pos))
 
         '''
         Discounts to go -> option of having 1/0 for all return-to-go for an episode,
@@ -158,7 +144,16 @@ class MiniGridDataset(Dataset):
         traj_mask = torch.cat([torch.ones(episode_length, dtype=torch.long),
                                 torch.zeros(padding_length, dtype=torch.long)],
                                 dim=0)
-        return  timesteps, states, actions, rtg, traj_mask, instructions_input_ids, instructions_token_type_ids, instructions_attention_mask
+        # lxrt ouput part
+        # Randomly defined parameters for actions, states, poses
+        lxrt_feature = self.lxrt_feature[episode_end_idx + 1 - episode_length:episode_end_idx + 1]
+        lxrt_feature = lxrt_feature.cpu()
+        lxrt_feature = torch.cat([lxrt_feature,
+                            torch.zeros(([padding_length] + list(lxrt_feature.shape[1:])),
+                            dtype=lxrt_feature.dtype)],
+                            dim=0)
+        return lxrt_feature, rtg, actions, traj_mask, timesteps
+        #return  timesteps, states, actions, rtg, traj_mask, instructions_input_ids, instructions_token_type_ids, instructions_attention_mask
 
 
     def get_non_zero_idx(self, env):

@@ -26,15 +26,15 @@ class MOREModel(nn.Module):
     def __init__(self):
         super().__init__()
         # Build LXRT encoder
-        self.more_encoder = LXRTEncoder(
-            args,
-            max_seq_length=MAX_VQA_LENGTH,
-            mode = 'l'
-        )
-        self.lxrt_tokenizer = BertTokenizer.from_pretrained(
-            "bert-base-uncased",
-            do_lower_case=True
-        )
+        # self.more_encoder = LXRTEncoder(
+        #     args,
+        #     max_seq_length=MAX_VQA_LENGTH,
+        #     mode = 'l'
+        # )
+        # self.lxrt_tokenizer = BertTokenizer.from_pretrained(
+        #     "bert-base-uncased",
+        #     do_lower_case=True
+        # )
         self.tokenizer = transformers.GPT2Tokenizer.from_pretrained("gpt2") #load tokenizer
         self.tokenizer.pad_token = self.tokenizer.eos_token
         transformers.logging.set_verbosity_error()

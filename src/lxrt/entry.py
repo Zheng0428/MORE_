@@ -78,9 +78,10 @@ def set_visual_config(args):
 
 
 class LXRTEncoder(nn.Module):
-    def __init__(self, args, max_seq_length, mode='x'):
+    def __init__(self, args, max_seq_length, device = 'cuda', mode='x'):
         super().__init__()
         self.max_seq_length = max_seq_length
+        self.device = device
         set_visual_config(args)
 
         # Using the bert tokenizer
@@ -112,9 +113,9 @@ class LXRTEncoder(nn.Module):
                 sents, self.max_seq_length, self.tokenizer)
         else:
             train_features = [action_space[index.item()] for index in sents]
-        input_ids = torch.tensor([f.input_ids for f in train_features], dtype=torch.long).cuda()
-        input_mask = torch.tensor([f.input_mask for f in train_features], dtype=torch.long).cuda()
-        segment_ids = torch.tensor([f.segment_ids for f in train_features], dtype=torch.long).cuda()
+        input_ids = torch.tensor([f.input_ids for f in train_features], dtype=torch.long).to(self.device)
+        input_mask = torch.tensor([f.input_mask for f in train_features], dtype=torch.long).to(self.device)
+        segment_ids = torch.tensor([f.segment_ids for f in train_features], dtype=torch.long).to(self.device)
 
         output = self.model(input_ids, segment_ids, input_mask,
                             visual_feats=feats,

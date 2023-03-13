@@ -13,7 +13,7 @@ from tqdm import tqdm
 from param import args
 from pretrain.qa_answer_table import load_lxmert_qa
 from tasks.more_model import MOREModel
-from tasks.data_preprocessing import MiniGridDataset
+from tasks.data_preprocessing.data_preprocessing import MiniGridDataset
 from tasks.vqa_data import VQADataset, VQATorchDataset, VQAEvaluator
 
 from lxrt.modeling import MLPModel
@@ -40,6 +40,7 @@ def get_data_tuple(splits: str, bs:int, shuffle=False, drop_last=False) -> DataT
 
 def get_data_tuple1(splits: str, bs:int, shuffle=False, drop_last=False) -> DataTuple:
     traj_dataset = MiniGridDataset(dataset_path='/home/zhangge/ZTY_Adam/MORE/data/more/minigrid_traj.pkl')
+    a = len(traj_dataset)
     traj_data_loader = DataLoader(             
         traj_dataset,
         batch_size=bs,
@@ -65,14 +66,7 @@ class MORE:
         
         # Model
         self.model = MOREModel() # Have already load the MORE_decoder weights
-        #build student model
-        len_i = 36 + 20           #state's patch:36 and text's len:20
-        len_o = FINAL_LEN
-        self.student_model = MLPModel(len_i, HIDDEN_NUM, len_o)
 
-        # Load MORE_Encoder weights
-        if args.load_lxmert is not None:
-            self.model.more_encoder.load(args.load_lxmert)
         # GPU options
         if torch.cuda.is_available():
             self.device = torch.device("cuda")
@@ -109,22 +103,11 @@ class MORE:
         iter_wrapper = (lambda x: tqdm(x, total=len(loader))) if args.tqdm else (lambda x: x)
 
         best_valid = 0.
-
-        # Freeze the parameters of the encoder for the first few epochs
-        for param in self.model.more_encoder.parameters():
-            param.requires_grad = False
-        # Unfreeze the parameters of the decoder
-        for param in self.model.more_decoder.parameters():
-            param.requires_grad = True
-
         for epoch in range(args.epochs):
-            quesid2ans = {}
-            for i, (lxmert_out, rtg, actions, traj_mask, timesteps, tmp, tmp, tmp) in iter_wrapper(enumerate(loader)):
+            for i, (lxmert_out, rtg, actions, traj_mask, timesteps) in iter_wrapper(enumerate(loader)):
                 self.model.train()
                 self.optim.zero_grad()   #梯度归零
-                reward = torch.round(torch.rand(32, 1))
-                target = 'turn left'
-                states, boxes, rtg = states.to(self.device), boxes.to(self.device), rtg.to(self.device)
+                lxmert_out, traj_mask, rtg, timesteps = lxmert_out.to(self.device), traj_mask.to(self.device), rtg.to(self.device), timesteps.to(device)
                 
                 output = self.model(lxmert_out, rtg, actions, traj_mask, timesteps)
                 #assert logit.dim() == target.dim() == 2
@@ -143,9 +126,9 @@ class MORE:
             log_str = "\nEpoch %d: Train %0.2f\n" % (epoch, evaluator.evaluate(quesid2ans) * 100.)
 
             #Unfreeze the parameters of the encoder after few epochs
-            if epoch == epoch_freeze:                 
-                for param in self.model.more_encoder.parameters():
-                    param.requires_grad = True
+            # if epoch == epoch_freeze:                 
+            #     for param in self.model.more_encoder.parameters():
+            #         param.requires_grad = True
 
             if self.valid_tuple is not None:  # Do Validation
                 valid_score = self.evaluate(eval_tuple)

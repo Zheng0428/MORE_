@@ -2,7 +2,7 @@ from transformers import GPT2Config
 import torch
 from src.tasks.gpt2_CVAE import Decoder
 lxrt_feature = torch.rand(32, 100, 768)
-rtg = torch.rand(32,100)
+rtg = torch.rand(32,100,768)
 text = 'i love HUHU'
 timesteps = torch.arange(start=0, end=100, step=1).unsqueeze(0)
 timesteps = torch.repeat_interleave(timesteps, 32, dim = 0) 

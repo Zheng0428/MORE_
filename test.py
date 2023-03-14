@@ -1,7 +1,10 @@
 import torch
+import numpy as np
 HIDDEN_NUM = 5000
 len_i = 36 + 20          #state's patch:36 and text's len:20
 len_o = 1                #turn to 1 token
-lxrt_feature = torch.rand(32000,56,768)
-lxrt_feature = lxrt_feature.view(32, 1000, lxrt_feature.shape[1], lxrt_feature.shape[2])
-tmp = 1
+
+x = torch.rand(32, 32, 100, 2304)
+split_size = 768
+query = x.split(split_size, dim=2)
+a = 1

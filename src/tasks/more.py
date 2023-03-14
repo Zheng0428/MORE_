@@ -19,7 +19,6 @@ from tasks.vqa_data import VQADataset, VQATorchDataset, VQAEvaluator
 from lxrt.modeling import MLPModel
 import torch.optim as optim
 import torch.functional as F
-from copy import deepcopy
 HIDDEN_NUM = 20000
 FINAL_LEN = 20
 
@@ -43,9 +42,9 @@ def get_data_tuple1(splits: str, bs:int, device, shuffle=False, drop_last=False)
     a = len(traj_dataset)
     traj_data_loader = DataLoader(             
         traj_dataset,
-        batch_size=bs,
+        batch_size = 8,   #test1
         shuffle=True,
-        pin_memory=True,
+        pin_memory=False,  #test1:后面记得改成true
         drop_last=True
         )                         #shuffle = Ture :Randomly generated idx
     return DataTuple(dataset=traj_dataset, loader=traj_data_loader)
@@ -105,11 +104,10 @@ class MORE:
 
         best_valid = 0.
         for epoch in range(args.epochs):
-            for i, (lxmert_out, rtg, actions, traj_mask, timesteps) in iter_wrapper(enumerate(loader)):
+            for lxmert_out, rtg, actions, traj_mask, timesteps in tqdm(loader):
                 self.model.train()
                 self.optim.zero_grad()   #梯度归零
-                lxmert_out, traj_mask, rtg, timesteps = lxmert_out.to(self.device), traj_mask.to(self.device), rtg.to(self.device), timesteps.to(device)
-                
+                lxmert_out, traj_mask, rtg, timesteps = lxmert_out.to(self.device), traj_mask.to(self.device), rtg.to(self.device), timesteps.to(self.device)
                 output = self.model(lxmert_out, rtg, actions, traj_mask, timesteps)
                 #assert logit.dim() == target.dim() == 2
                 loss = self.bce_loss(output, target)

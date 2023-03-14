@@ -1,20 +1,15 @@
-# git clone https://github.com/huggingface/transformers.git
-import sys
-sys.path.append('transformers/examples/research_projects/lxmert/')
-sys.path.append('transformers/src/')
-
 import torch
 import numpy as np
 from processing_image import Preprocess
 from visualizing_image import SingleImageViz
 from modeling_frcnn import GeneralizedRCNN
-from utils import Config
+from utils import Config, extend_tensor
 import utils
 import wget
 import os
 
 '''faster r-cnn visual encoder for LXMert model
-Usage: 
+Usage:
 
 faster_r_cnn = FasterRCNN_Visual_Feats()
 visual_feats, visual_pos = faster_r_cnn(images)
@@ -39,23 +34,29 @@ make compatible with GPU (only works with cpu right now) to make workable for tr
 '''
 
 class FasterRCNN_Visual_Feats:
-    def __init__(self, config='unc-nlp/frcnn-vg-finetuned'):
+    def __init__(self, device, config='unc-nlp/frcnn-vg-finetuned'):
+        self.device = device
         self.frcnn_cfg = Config.from_pretrained("unc-nlp/frcnn-vg-finetuned")
-        self.frcnn = GeneralizedRCNN.from_pretrained("unc-nlp/frcnn-vg-finetuned", config=self.frcnn_cfg)
+        self.frcnn_cfg.model.device = self.device
+        self.frcnn = GeneralizedRCNN.from_pretrained("unc-nlp/frcnn-vg-finetuned", config=self.frcnn_cfg).to(self.device)
         self.image_preprocess = Preprocess(self.frcnn_cfg)
 
-    def __call__(self, images, batch_size=100):
-        images, sizes, scales_yx = self.image_preprocess(images)
-        output_dict = self.frcnn(
-            images,
-            sizes,
-            scales_yx=scales_yx,
-            padding="max_detections",
-            max_detections=self.frcnn_cfg.max_detections,
-            return_tensors="pt"
-        )
-        #(batch_size, 36, 4)
-        normalized_boxes = output_dict.get("normalized_boxes")
-        #(batch_size, 36, 2048)
-        features = output_dict.get("roi_features")
+    def __call__(self, images):
+        features, normalized_boxes= None, None
+        for img in images:
+            images, sizes, scales_yx = self.image_preprocess([img])
+            output_dict = self.frcnn(
+                images.to(self.device),
+                sizes.to(self.device),
+                scales_yx=scales_yx.to(self.device),
+                padding="max_detections",
+                max_detections=self.frcnn_cfg.max_detections,
+                return_tensors="pt"
+                )
+            #(batch_size, 36, 4)
+            normalized_boxes_batch = output_dict.get("normalized_boxes")
+            #(batch_size, 36, 2048)
+            features_batch = output_dict.get("roi_features")
+            features = extend_tensor(features, features_batch)
+            normalized_boxes = extend_tensor(normalized_boxes, normalized_boxes_batch)
         return features, normalized_boxes

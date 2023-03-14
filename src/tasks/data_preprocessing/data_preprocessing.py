@@ -8,6 +8,9 @@ import torch.nn.functional as F
 from torch.utils.data import Dataset, DataLoader
 from transformers import LxmertTokenizerFast
 from tasks.data_preprocessing.lxrt_dataload import LXMTDataLoad
+from utils import extend_tensor
+from fasterrcnn import FasterRCNN_Visual_Feats
+
 TMP = torch.rand(1000,56,768)
 '''
 Usage:
@@ -24,7 +27,7 @@ data_iter = iter(traj_data_loader)
 
 example:
 
-timesteps, states, actions, returns_to_go, traj_mask, instructions_input_ids, instructions_token_type_ids, instructions_attention_mask = next(data_iter)
+timesteps, states, actions, returns_to_go, traj_mask, instructions_input_ids, instructions_token_type_ids, instructions_attention_mask, visual_feats, visual_pos = next(data_iter)
 
 context_length -> 1000 (long enough to contain all episodes, most will be shorter with padding)
 
@@ -39,20 +42,18 @@ traj_mask -> tensor[batch_size, context_length]
 instructions_input_ids -> [batch_size, context_length, 32]
 instructions_token_type_ids -> [batch_size, context_length, 32]
 instructions_attention_mask -> [batch_size, context_length, 32]
-'''
 
-def extend_tensor(tensor1, tensor2):
-    if tensor2 is None:
-        print('tensor 2 None')
-    if tensor1 is None:
-        return tensor2
-    else:
-        return torch.cat((tensor1, tensor2), 0)
+** added: visual feats and visual pos from faster r-cnn **
+
+visual_feats -> [batch_size, context_length, 36, 2048]
+visual_pos -> [batch_size, context_length, 36, 4]
+'''
 
 class MiniGridDataset(Dataset):
     def __init__(self, dataset_path, max_length=1000, tokenizer_config = 'unc-nlp/lxmert-base-uncased', reward_with_timestep=False, device = 'cpu'):
         self.device = device
         self.tokenizer = LxmertTokenizerFast.from_pretrained(tokenizer_config)
+        self.faster_r_cnn = FasterRCNN_Visual_Feats(config=config, device=self.device)
         self.reward_with_timestep = reward_with_timestep
         self.max_length = max_length
         self.observations = None
@@ -140,12 +141,22 @@ class MiniGridDataset(Dataset):
                     dtype=instructions['attention_mask'].dtype)],
                     dim=0)
 
+        visual_feats, visual_pos = self.faster_r_cnn([torch.from_numpy(img) for img in self.observations[episode_end_idx + 1 - episode_length:episode_end_idx + 1]])
+        visual_feats = torch.cat([visual_feats,
+                            torch.zeros(([padding_length] + list(visual_feats.shape[1:])),
+                            dtype=visual_feats.dtype)],
+                            dim=0)
+        visual_pos = torch.cat([visual_pos,
+                            torch.zeros(([padding_length] + list(visual_pos.shape[1:])),
+                            dtype=visual_pos.dtype)],
+                            dim=0)
+
         timesteps = torch.arange(start=0, end=self.max_length, step=1)
 
         traj_mask = torch.cat([torch.ones(episode_length, dtype=torch.long),
                                 torch.zeros(padding_length, dtype=torch.long)],
                                 dim=0)
-        
+
         # lxrt ouput part
         # Randomly defined parameters for actions, states, poses
         lxrt_feature = self.lxrt_feature[episode_end_idx + 1 - episode_length:episode_end_idx + 1]
@@ -155,7 +166,7 @@ class MiniGridDataset(Dataset):
         #                     dtype=lxrt_feature.dtype)],
         #                     dim=0)
         return lxrt_feature, rtg, actions, traj_mask, timesteps
-        #return  timesteps, states, actions, rtg, traj_mask, instructions_input_ids, instructions_token_type_ids, instructions_attention_mask
+        #return  timesteps, states, actions, rtg, traj_mask, instructions_input_ids, instructions_token_type_ids, instructions_attention_mask, visual_feats, visual_pos
 
 
     def get_non_zero_idx(self, env):

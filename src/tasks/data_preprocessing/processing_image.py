@@ -21,7 +21,7 @@ from PIL import Image
 from torch import nn
 
 from transformers.image_utils import PILImageResampling
-from utils import img_tensorize
+from tasks.data_preprocessing.utils import img_tensorize
 
 
 class ResizeShortestEdge:

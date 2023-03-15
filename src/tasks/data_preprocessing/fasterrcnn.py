@@ -1,9 +1,11 @@
+import sys
+#sys.path.append("./src/tasks/data_preprocessing")
 import torch
 import numpy as np
 from processing_image import Preprocess
-from visualizing_image import SingleImageViz
+#from visualizing_image import SingleImageViz
 from modeling_frcnn import GeneralizedRCNN
-from utils import Config, extend_tensor
+from tasks.data_preprocessing.utils import Config, extend_tensor
 import utils
 import wget
 import os

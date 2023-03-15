@@ -1,5 +1,6 @@
 import sys
 sys.path.append("./src")
+sys.path.append("./src/tasks/data_preprocessing")
 import pickle
 import numpy as np
 import torch
@@ -7,8 +8,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.utils.data import Dataset, DataLoader
 from transformers import LxmertTokenizerFast
-from tasks.data_preprocessing.lxrt_dataload import LXMTDataLoad
-from utils import extend_tensor
+from lxrt_dataload import LXMTDataLoad
+from tasks.data_preprocessing.utils import extend_tensor
 from fasterrcnn import FasterRCNN_Visual_Feats
 
 TMP = torch.rand(1000,56,768)
@@ -53,7 +54,7 @@ class MiniGridDataset(Dataset):
     def __init__(self, dataset_path, max_length=1000, tokenizer_config = 'unc-nlp/lxmert-base-uncased', reward_with_timestep=False, device = 'cpu'):
         self.device = device
         self.tokenizer = LxmertTokenizerFast.from_pretrained(tokenizer_config)
-        self.faster_r_cnn = FasterRCNN_Visual_Feats(config=config, device=self.device)
+        self.faster_r_cnn = FasterRCNN_Visual_Feats(device=self.device)
         self.reward_with_timestep = reward_with_timestep
         self.max_length = max_length
         self.observations = None
@@ -86,10 +87,9 @@ class MiniGridDataset(Dataset):
             self.rtg = extend_tensor(self.rtg, self.get_rtg(env))
             # lxmert output
             action = torch.as_tensor(self.trajectories[env]['actions'])
-            state = torch.rand(action.shape[0], 36, 2048)
-            pos = torch.rand(action.shape[0], 36, 4)
             #action, state, pos = action.to(device), state.to(device), pos.to(device)
-            self.lxrt_feature = extend_tensor(self.lxrt_feature,(self.lxrt_dataload(action, state, pos)).to('cpu'))
+            visual_feats, visual_pos = self.faster_r_cnn([img for img in self.observations])
+            self.lxrt_feature = extend_tensor(self.lxrt_feature,(self.lxrt_dataload(action, visual_feats, visual_pos)).to('cpu'))
             if test > 10:  #test1
                 break
 

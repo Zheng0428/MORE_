@@ -13,13 +13,12 @@ from tasks.data_preprocessing.utils import extend_tensor
 from fasterrcnn import FasterRCNN_Visual_Feats
 import csv, os, sys
 class LoadData(nn.Module):
-    def __init__(self, dataset_path, max_length=1000, tokenizer_config = 'unc-nlp/lxmert-base-uncased', reward_with_timestep=False, device = 'cpu'):
+    def __init__(self, dataset_path, tokenizer_config = 'unc-nlp/lxmert-base-uncased', reward_with_timestep=False, device = 'cpu'):
         super().__init__()
         self.device = device
         self.tokenizer = LxmertTokenizerFast.from_pretrained(tokenizer_config)
         self.faster_r_cnn = FasterRCNN_Visual_Feats(device=self.device)
         self.reward_with_timestep = reward_with_timestep
-        self.max_length = max_length
         self.observations = None
         self.actions = None
         self.rewards = None
@@ -72,10 +71,8 @@ class LoadData(nn.Module):
         return rtg
 
     def forward(self):
-        tmp = 0
         for env in self.trajectories:
             print(env)
-            tmp += 1
             self.observations = extend_tensor(self.observations, torch.as_tensor(self.trajectories[env]['observations']))
             self.instructions.extend(self.trajectories[env]['instructions'])
             self.actions = extend_tensor(self.actions,torch.as_tensor(self.trajectories[env]['actions']))
@@ -90,8 +87,6 @@ class LoadData(nn.Module):
             visual_feats, visual_pos = self.faster_r_cnn([img for img in self.observations])
             action, visual_feats, visual_pos = action.to(self.device), visual_feats.to(self.device), visual_pos.to(self.device)
             self.lxrt_feature = extend_tensor(self.lxrt_feature,(self.lxrt_dataload(action, visual_feats, visual_pos)).to('cpu'))
-            if tmp > 1:
-                break
         if os.path.exists(self.outfile):
             torch.save([self.lxrt_feature,
                         self.rtg,

@@ -50,8 +50,9 @@ visual_pos -> [batch_size, context_length, 36, 4]
 '''
 
 class MiniGridDataset(Dataset):
-    def __init__(self, train_path, device = 'cpu'):
+    def __init__(self, train_path,max_length=1000, device = 'cpu'):
         self.device = device
+        self.max_length = max_length
         # load dataset
         if os.path.exists(train_path):
             self.data = torch.load(train_path)
@@ -69,7 +70,7 @@ class MiniGridDataset(Dataset):
         '''
 
     def __len__(self):
-        return len(self.observations)
+        return len(self.rtg)
 
     def __getitem__(self, index):
         '''

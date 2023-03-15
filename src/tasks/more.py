@@ -38,7 +38,7 @@ def get_data_tuple(splits: str, bs:int, shuffle=False, drop_last=False) -> DataT
 
 
 def get_data_tuple1(splits: str, bs:int, device, shuffle=False, drop_last=False) -> DataTuple:
-    traj_dataset = MiniGridDataset(train_path = './data/minigrid_imgfeat/train.pt', device = device)
+    traj_dataset = MiniGridDataset(train_path = './data/minigrid_imgfeat/train.pt', max_length=1000, device = device)
     a = len(traj_dataset)
     traj_data_loader = DataLoader(             
         traj_dataset,
@@ -110,17 +110,17 @@ class MORE:
                 lxmert_out, traj_mask, rtg, timesteps = lxmert_out.to(self.device), traj_mask.to(self.device), rtg.to(self.device), timesteps.to(self.device)
                 output = self.model(lxmert_out, rtg, actions, traj_mask, timesteps)
                 #assert logit.dim() == target.dim() == 2
-                loss = self.bce_loss(output, target)
-                loss = loss * output.size(1)
+                # loss = self.bce_loss(output, target)
+                # loss = loss * output.size(1)
 
-                loss.backward()  #反向传播
-                nn.utils.clip_grad_norm_(self.model.parameters(), 5.)
-                self.optim.step()  #参数更新
+                # loss.backward()  #反向传播
+                # nn.utils.clip_grad_norm_(self.model.parameters(), 5.)
+                # self.optim.step()  #参数更新
 
-                score, label = output.max(1)
-                for qid, l in zip(ques_id, label.cpu().numpy()):
-                    ans = dset.label2ans[l]
-                    quesid2ans[qid.item()] = ans
+                # score, label = output.max(1)
+                # for qid, l in zip(ques_id, label.cpu().numpy()):
+                #     ans = dset.label2ans[l]
+                #     quesid2ans[qid.item()] = ans
 
             log_str = "\nEpoch %d: Train %0.2f\n" % (epoch, evaluator.evaluate(quesid2ans) * 100.)
 

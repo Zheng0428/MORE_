@@ -363,8 +363,8 @@ class Decoder(GPT2Model):
                 )
 
             hidden_states, present = outputs[:2]
-            if self.output_past:
-                presents = presents + (present,)
+            # if self.output_past:
+            #     presents = presents + (present,)
 
             if self.output_attentions:
                 all_attentions.append(outputs[2])

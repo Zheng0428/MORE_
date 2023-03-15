@@ -12,7 +12,6 @@ from lxrt_dataload import LXMTDataLoad
 from tasks.data_preprocessing.utils import extend_tensor
 from fasterrcnn import FasterRCNN_Visual_Feats
 
-TMP = torch.rand(1000,56,768)
 '''
 Usage:
 
@@ -145,15 +144,6 @@ class MiniGridDataset(Dataset):
         #             dtype=instructions['attention_mask'].dtype)],
         #             dim=0)
 
-        visual_feats, visual_pos = self.faster_r_cnn([torch.from_numpy(img) for img in self.observations[episode_end_idx + 1 - episode_length:episode_end_idx + 1]])
-        visual_feats = torch.cat([visual_feats,
-                            torch.zeros(([padding_length] + list(visual_feats.shape[1:])),
-                            dtype=visual_feats.dtype)],
-                            dim=0)
-        visual_pos = torch.cat([visual_pos,
-                            torch.zeros(([padding_length] + list(visual_pos.shape[1:])),
-                            dtype=visual_pos.dtype)],
-                            dim=0)
 
         timesteps = torch.arange(start=0, end=self.max_length, step=1)
 
@@ -168,7 +158,6 @@ class MiniGridDataset(Dataset):
                                     np.zeros(([padding_length] + list(lxrt_feature.shape[1:])),
                                     dtype= lxrt_feature.dtype)),
                                     axis=0)
-        #lxrt_feature = TMP
         return lxrt_feature, rtg, actions, traj_mask, timesteps
         #return  timesteps, states, actions, rtg, traj_mask, instructions_input_ids, instructions_token_type_ids, instructions_attention_mask, visual_feats, visual_pos
 

@@ -80,7 +80,7 @@ class LXMTDataLoad(nn.Module):
                 data,
                 batch_size = self.bs,
                 shuffle = False,
-                pin_memory = True,
+                pin_memory = False,
                 drop_last = False
                 ) 
         a = len(lxrt_data_loader)

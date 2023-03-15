@@ -38,7 +38,7 @@ def get_data_tuple(splits: str, bs:int, shuffle=False, drop_last=False) -> DataT
 
 
 def get_data_tuple1(splits: str, bs:int, device, shuffle=False, drop_last=False) -> DataTuple:
-    traj_dataset = MiniGridDataset(dataset_path='/home/zhangge/ZTY_Adam/MORE/data/more/minigrid_traj.pkl', device = device)
+    traj_dataset = MiniGridDataset(train_path = './data/minigrid_imgfeat/train.pt', device = device)
     a = len(traj_dataset)
     traj_data_loader = DataLoader(             
         traj_dataset,

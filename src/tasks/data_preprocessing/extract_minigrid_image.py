@@ -70,9 +70,12 @@ class LoadData(nn.Module):
                 curr_episode[:] = [reward / episode_length * i for i in range(curr_episode)]
             rtg = extend_tensor(rtg, torch.as_tensor(curr_episode))
         return rtg
+
     def forward(self):
+        tmp = 0
         for env in self.trajectories:
             print(env)
+            tmp += 1
             self.observations = extend_tensor(self.observations, torch.as_tensor(self.trajectories[env]['observations']))
             self.instructions.extend(self.trajectories[env]['instructions'])
             self.actions = extend_tensor(self.actions,torch.as_tensor(self.trajectories[env]['actions']))
@@ -87,7 +90,8 @@ class LoadData(nn.Module):
             visual_feats, visual_pos = self.faster_r_cnn([img for img in self.observations])
             action, visual_feats, visual_pos = action.to(self.device), visual_feats.to(self.device), visual_pos.to(self.device)
             self.lxrt_feature = extend_tensor(self.lxrt_feature,(self.lxrt_dataload(action, visual_feats, visual_pos)).to('cpu'))
-
+            if tmp > 1:
+                break
         if os.path.exists(self.outfile):
             torch.save([self.lxrt_feature,
                         self.rtg,
@@ -108,7 +112,7 @@ if __name__ == '__main__':
     # Setup the configuration, normally do not need to touch these:
 
     # Load image ids, need modification for new datasets.
-    data = LoadData(device = 'cuda:0',dataset_path='/home/zhangge/ZTY_Adam/MORE/data/more/minigrid_traj.pkl')
+    data = LoadData(device = 'cuda:1',dataset_path='/home/zhangge/ZTY_Adam/MORE/data/more/minigrid_traj.pkl')
     a = data()
     # Generate TSV files, noramlly do not need to modify
 

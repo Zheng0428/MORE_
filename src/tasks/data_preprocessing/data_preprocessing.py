@@ -1,7 +1,7 @@
 import sys
 sys.path.append("./src")
 sys.path.append("./src/tasks/data_preprocessing")
-import pickle
+import os
 import numpy as np
 import torch
 import torch.nn as nn
@@ -50,47 +50,18 @@ visual_pos -> [batch_size, context_length, 36, 4]
 '''
 
 class MiniGridDataset(Dataset):
-    def __init__(self, dataset_path, max_length=1000, tokenizer_config = 'unc-nlp/lxmert-base-uncased', reward_with_timestep=False, device = 'cpu'):
+    def __init__(self, train_path, device = 'cpu'):
         self.device = device
-        self.tokenizer = LxmertTokenizerFast.from_pretrained(tokenizer_config)
-        self.faster_r_cnn = FasterRCNN_Visual_Feats(device=self.device)
-        self.reward_with_timestep = reward_with_timestep
-        self.max_length = max_length
-        self.observations = None
-        self.actions = None
-        self.rewards = None
-        self.dones = None
-        self.instructions = []
-        self.episode_idxs = None
-        self.episode_lengths = None
-        self.rtg = None
-        # init lxrt model
-        self.lxrt_feature = None
-        self.lxrt_dataload = LXMTDataLoad(128, self.device)
-
         # load dataset
-        with open(dataset_path, 'rb') as f:
-            self.trajectories = pickle.load(f)
-        test = 0  #test1
-        for env in self.trajectories:
-            print(env)
-            test += 1   #test1
-            self.observations = extend_tensor(self.observations, torch.as_tensor(self.trajectories[env]['observations']))
-            self.instructions.extend(self.trajectories[env]['instructions'])
-            self.actions = extend_tensor(self.actions,torch.as_tensor(self.trajectories[env]['actions']))
-            self.rewards = extend_tensor(self.rewards, torch.as_tensor(self.trajectories[env]['rewards']))
-            self.dones = extend_tensor(self.dones, torch.as_tensor(self.trajectories[env]['dones']))
-            episode_idxs, episode_lengths = self.get_episode_infos(env)
-            self.episode_idxs = extend_tensor(self.episode_idxs, episode_idxs)
-            self.episode_lengths = extend_tensor(self.episode_lengths, episode_lengths)
-            self.rtg = extend_tensor(self.rtg, self.get_rtg(env))
-            # lxmert output
-            action = torch.as_tensor(self.trajectories[env]['actions'])
-            #action, state, pos = action.to(device), state.to(device), pos.to(device)
-            visual_feats, visual_pos = self.faster_r_cnn([img for img in self.observations])
-            self.lxrt_feature = extend_tensor(self.lxrt_feature,(self.lxrt_dataload(action, visual_feats, visual_pos)).to('cpu'))
-            if test > 10:  #test1
-                break
+        if os.path.exists(train_path):
+            self.data = torch.load(train_path)
+        self.lxrt_feature = self.data[0]
+        self.rtg = self.data[1]
+        self.rewards = self.data[2]
+        self.actions = self.data[3]
+        self.instructions = self.data[4]
+        self.episode_idxs = self.data[5]
+        self.episode_lengths = self.data[6]
 
         '''
         Discounts to go -> option of having 1/0 for all return-to-go for an episode,

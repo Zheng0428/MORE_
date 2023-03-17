@@ -13,9 +13,10 @@ from tasks.data_preprocessing.utils import extend_tensor
 from fasterrcnn import FasterRCNN_Visual_Feats
 import csv, os, sys
 class LoadData(nn.Module):
-    def __init__(self, dataset_path, tokenizer_config = 'unc-nlp/lxmert-base-uncased', reward_with_timestep=False, device = 'cpu'):
+    def __init__(self, dataset_path, max_length, tokenizer_config = 'unc-nlp/lxmert-base-uncased', reward_with_timestep=False, device = 'cpu'):
         super().__init__()
         self.device = device
+        self.max_length = max_length
         self.tokenizer = LxmertTokenizerFast.from_pretrained(tokenizer_config)
         self.faster_r_cnn = FasterRCNN_Visual_Feats(device=self.device)
         self.reward_with_timestep = reward_with_timestep
@@ -107,7 +108,7 @@ if __name__ == '__main__':
     # Setup the configuration, normally do not need to touch these:
 
     # Load image ids, need modification for new datasets.
-    data = LoadData(device = 'cuda:1',dataset_path='/home/zhangge/ZTY_Adam/MORE/data/more/minigrid_traj.pkl')
+    data = LoadData(device = 'cuda:0', max_length = 1000, dataset_path='/home/zhangge/ZTY_Adam/MORE/data/more/minigrid_traj.pkl')
     a = data()
     # Generate TSV files, noramlly do not need to modify
 

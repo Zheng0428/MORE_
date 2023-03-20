@@ -130,7 +130,7 @@ class MiniGridDataset(Dataset):
                                     np.zeros(([padding_length] + list(lxrt_feature.shape[1:])),
                                     dtype= lxrt_feature.dtype)),
                                     axis=0)
-        return lxrt_feature, rtg, actions, traj_mask, timesteps
+        return lxrt_feature, rtg, traj_mask, timesteps
         #return  timesteps, states, actions, rtg, traj_mask, instructions_input_ids, instructions_token_type_ids, instructions_attention_mask, visual_feats, visual_pos
 
 

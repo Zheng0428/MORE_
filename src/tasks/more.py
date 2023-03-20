@@ -14,39 +14,22 @@ from param import args
 from pretrain.qa_answer_table import load_lxmert_qa
 from tasks.more_model import MOREModel
 from tasks.data_preprocessing.data_preprocessing import MiniGridDataset
-from tasks.vqa_data import VQADataset, VQATorchDataset, VQAEvaluator
 
-from lxrt.modeling import MLPModel
-import torch.optim as optim
-import torch.functional as F
 HIDDEN_NUM = 20000
 FINAL_LEN = 20
 
 DataTuple = collections.namedtuple("DataTuple", 'dataset loader')
 
-def get_data_tuple(splits: str, bs:int, shuffle=False, drop_last=False) -> DataTuple:
-    dset = VQADataset(splits)
-    tset = VQATorchDataset(dset)
-    evaluator = VQAEvaluator(dset)
-    data_loader = DataLoader(
-        tset, batch_size=bs,
-        shuffle=shuffle, num_workers=args.num_workers,
-        drop_last=drop_last, pin_memory=True
-    )
-
-    return DataTuple(dataset=dset, loader=data_loader, evaluator=evaluator)
-
-
-def get_data_tuple1(splits: str, bs:int, device, shuffle=False, drop_last=False) -> DataTuple:
+def get_data_tuple(splits: str, bs:int, device, shuffle = False, drop_last = False) -> DataTuple:
     traj_dataset = MiniGridDataset(train_path = './data/minigrid_imgfeat/train.pt', max_length=1000, device = device)
-    a = len(traj_dataset)
+    # a = len(traj_dataset)
     traj_data_loader = DataLoader(             
         traj_dataset,
-        batch_size = 8,   #test1
-        shuffle=True,
-        pin_memory=False,  #test1:后面记得改成true
-        drop_last=True
-        )                         #shuffle = Ture :Randomly generated idx
+        batch_size = bs,
+        shuffle = shuffle,   #shuffle = Ture :Randomly generated idx
+        pin_memory = True,   
+        drop_last = drop_last
+        )                         
     return DataTuple(dataset=traj_dataset, loader=traj_data_loader)
 
 class MORE:
@@ -60,7 +43,7 @@ class MORE:
             )
             self.device = torch.device("cpu")
         # Datasets
-        self.train_tuple = get_data_tuple1(
+        self.train_tuple = get_data_tuple(
             args.train, bs=args.batch_size, device=self.device, shuffle=True, drop_last=True
         )
         if args.valid != "":
@@ -73,15 +56,12 @@ class MORE:
         
         # Model
         self.model = MOREModel() # Have already load the MORE_decoder weights
-
-        
-
         self.model = self.model.to(self.device)
+
         if args.multiGPU:
             self.model.more_encoder.multi_gpu()
 
-        # Loss and Optimizer
-        self.bce_loss = nn.BCEWithLogitsLoss()
+        # Optimizer
         if 'bert' in args.optim:
             batch_per_epoch = len(self.train_tuple.loader)
             t_total = int(batch_per_epoch * args.epochs)
@@ -98,36 +78,23 @@ class MORE:
         self.output = args.output
         os.makedirs(self.output, exist_ok=True)
 
-    def train(self, train_tuple, eval_tuple, epoch_freeze):
+    def train(self, train_tuple, eval_tuple):
         dset, loader = train_tuple
         iter_wrapper = (lambda x: tqdm(x, total=len(loader))) if args.tqdm else (lambda x: x)
 
         best_valid = 0.
         for epoch in range(args.epochs):
-            for lxmert_out, rtg, actions, traj_mask, timesteps in tqdm(loader):
+            for i, (lxmert_out, rtg, traj_mask, timesteps) in iter_wrapper(enumerate(loader)):
                 self.model.train()
                 self.optim.zero_grad()   #梯度归零
                 lxmert_out, traj_mask, rtg, timesteps = lxmert_out.to(self.device), traj_mask.to(self.device), rtg.to(self.device), timesteps.to(self.device)
-                output = self.model(lxmert_out, rtg, actions, traj_mask, timesteps)
-                #assert logit.dim() == target.dim() == 2
-                # loss = self.bce_loss(output, target)
-                # loss = loss * output.size(1)
+                output = self.model(lxmert_out, rtg, traj_mask, timesteps)
+                loss = output.loss
+                loss.backward()  #反向传播
+                nn.utils.clip_grad_norm_(self.model.parameters(), 5.)  #解决梯度爆炸的问题
+                self.optim.step()  #参数更新
 
-                # loss.backward()  #反向传播
-                # nn.utils.clip_grad_norm_(self.model.parameters(), 5.)
-                # self.optim.step()  #参数更新
-
-                # score, label = output.max(1)
-                # for qid, l in zip(ques_id, label.cpu().numpy()):
-                #     ans = dset.label2ans[l]
-                #     quesid2ans[qid.item()] = ans
-
-            log_str = "\nEpoch %d: Train %0.2f\n" % (epoch, evaluator.evaluate(quesid2ans) * 100.)
-
-            #Unfreeze the parameters of the encoder after few epochs
-            # if epoch == epoch_freeze:                 
-            #     for param in self.model.more_encoder.parameters():
-            #         param.requires_grad = True
+            # log_str = "\nEpoch %d: Train %0.2f\n" % (epoch, evaluator.evaluate(quesid2ans) * 100.)
 
             if self.valid_tuple is not None:  # Do Validation
                 valid_score = self.evaluate(eval_tuple)
@@ -204,21 +171,10 @@ if __name__ == "__main__":
     # Note: It is different from loading LXMERT pre-trained weights.
     if args.load is not None:
         more.load(args.load)
-    if args.cl_train:
-        more.train_cl(
-            more.train_tuple, 
-            more.valid_tuple,
-            epochs=10,
-            plot_losses=True,
-            save_model=True,
-            save_model_pth="./models/student.pt",
-        )
-    else:
-        more.train(
-            more.train_tuple, 
-            more.valid_tuple, 
-            args.epoch_freeze
-            ) # First run the training through
+    more.train(
+        more.train_tuple, 
+        more.valid_tuple, 
+        ) # First run the training through
     # Test or Train
     # if args.test is not None:
     #    pass

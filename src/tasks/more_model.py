@@ -6,7 +6,7 @@ import transformers
 from param import args
 from lxrt.entry import LXRTEncoder,convert_sents_to_features
 from lxrt.modeling import BertLayerNorm, GeLU, MLPModel
-from src.tasks.gpt2 import GPT2LMHeadModel
+from tasks.gpt2 import GPT2LMHeadModel
 import numpy as np
 
 ########################################

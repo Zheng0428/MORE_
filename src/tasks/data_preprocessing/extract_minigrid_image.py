@@ -70,7 +70,27 @@ class LoadData(nn.Module):
                 curr_episode[:] = [reward / episode_length * i for i in range(curr_episode)]
             rtg = extend_tensor(rtg, torch.as_tensor(curr_episode))
         return rtg
+    
+    def split_data(self, data, train_ratio=0.7, valid_ratio=0.15, test_ratio=0.15):
+        assert train_ratio + valid_ratio + test_ratio == 1, "比例之和必须等于1"
 
+        # 计算数据总量
+        total_size = len(data)
+        
+        # 生成一个乱序索引数组
+        shuffled_indices = np.random.permutation(total_size)
+
+        # 计算各个子集的大小
+        train_size = int(total_size * train_ratio)
+        valid_size = int(total_size * valid_ratio)
+
+        # 根据乱序索引划分数据集
+        train_data = [data[i] for i in shuffled_indices[:train_size]]
+        valid_data = [data[i] for i in shuffled_indices[train_size:train_size + valid_size]]
+        test_data = [data[i] for i in shuffled_indices[train_size + valid_size:]]
+
+        return train_data, valid_data, test_data
+    
     def forward(self):
         for env in self.trajectories:
             print(env)
@@ -88,14 +108,18 @@ class LoadData(nn.Module):
             visual_feats, visual_pos = self.faster_r_cnn([img for img in self.observations])
             action, visual_feats, visual_pos = action.to(self.device), visual_feats.to(self.device), visual_pos.to(self.device)
             self.lxrt_feature = extend_tensor(self.lxrt_feature,(self.lxrt_dataload(action, visual_feats, visual_pos)).to('cpu'))
+        data = [self.lxrt_feature,
+                self.rtg,
+                self.rewards,
+                self.actions,
+                self.instructions,
+                self.episode_idxs,
+                self.episode_lengths]
+        train_data, valid_data, test_data = self.split_data(data, train_ratio=0.7, valid_ratio=0.15, test_ratio=0.15)
         if os.path.exists(self.outfile):
-            torch.save([self.lxrt_feature,
-                        self.rtg,
-                        self.rewards,
-                        self.actions,
-                        self.instructions,
-                        self.episode_idxs,
-                        self.episode_lengths],self.outfile +'train.pt')
+            torch.save(train_data,self.outfile +'train.pt')
+            torch.save(valid_data,self.outfile +'valid.pt')
+            torch.save(test_data,self.outfile +'test.pt')
 
 
         #np.savetxt('./obj/model.csv',model.encode().detach().numpy(),fmt='%.2f',delimiter=',')
@@ -108,7 +132,7 @@ if __name__ == '__main__':
     # Setup the configuration, normally do not need to touch these:
 
     # Load image ids, need modification for new datasets.
-    data = LoadData(device = 'cuda:0', max_length = 1000, dataset_path='/home/zhangge/ZTY_Adam/MORE/data/more/minigrid_traj.pkl')
+    data = LoadData(device = 'cuda:1', max_length = 1000, dataset_path='/home/zhangge/ZTY_Adam/MORE/data/more/minigrid_traj.pkl')
     a = data()
     # Generate TSV files, noramlly do not need to modify
 

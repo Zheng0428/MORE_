@@ -37,9 +37,6 @@
                 "--output",
                 "snap/more/more_lxr955_tiny/",
                 "--tiny",
-                "--epochfreeze",
-                "10",
-                // "--cltrain"
             ],
             "console": "integratedTerminal",
             "justMyCode": true
@@ -105,7 +102,7 @@
                 "--loadLXMERT",
                 "snap/pretrained/model",
                 "--batchSize",
-                "3200",
+                "32",
                 "--optim",
                 "bert",
                 "--lr",
@@ -116,9 +113,6 @@
                 "--output",
                 "snap/more/more_lxr955_tiny/",
                 "--tiny",
-                "--epochfreeze",
-                "10",
-                // "--cltrain"
             ]
         }
     ]

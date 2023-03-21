@@ -21,7 +21,7 @@ FINAL_LEN = 20
 DataTuple = collections.namedtuple("DataTuple", 'dataset loader')
 
 def get_data_tuple(splits: str, bs:int, device, shuffle = False, drop_last = False) -> DataTuple:
-    traj_dataset = MiniGridDataset(train_path = './data/minigrid_imgfeat/train.pt', max_length=1000, device = device)
+    traj_dataset = MiniGridDataset(train_path = './data/minigrid_imgfeat/train_test.pt', max_length=1000, device = device)
     # a = len(traj_dataset)
     traj_data_loader = DataLoader(             
         traj_dataset,
@@ -36,7 +36,7 @@ class MORE:
     def __init__(self):
         # GPU options
         if torch.cuda.is_available():
-            self.device = torch.device("cuda:1")
+            self.device = torch.device("cuda:0")
         else:
             print(
                 "Either an invalid device or CUDA is not available. Defaulting to CPU."

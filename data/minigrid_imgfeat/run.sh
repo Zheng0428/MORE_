@@ -1,1 +1,1 @@
-nohup python /home/zhangge/ZTY_Adam/MORE_/src/tasks/data_preprocessing/extract_minigrid_image.py --loadLXMERT snap/pretrained/model >> ./log/minigrid`date +'%Y-%m-%d'`.log 2>&1 &
+nohup python /home/zhangge/ZTY_Adam/MORE_/src/tasks/data_preprocessing/extract_minigrid_image.py --loadLXMERT snap/pretrained/model >> ./log/train1`date +'%Y-%m-%d'`.log 2>&1 &

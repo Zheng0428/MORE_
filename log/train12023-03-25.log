@@ -1,0 +1,91 @@
+/home/zhangge/anaconda3/envs/MORE38/lib/python3.8/site-packages/torch/nn/functional.py:718: UserWarning: Named tensors and all their associated APIs are an experimental feature and subject to change. Please do not use them for anything important until they are released as stable. (Triggered internally at  /pytorch/c10/core/TensorImpl.h:1156.)
+  return torch.max_pool2d(input, kernel_size, stride, padding, dilation, ceil_mode)
+loading configuration file cache
+loading weights file https://cdn.huggingface.co/unc-nlp/frcnn-vg-finetuned/pytorch_model.bin from cache at /home/zhangge/.cache/torch/transformers/57f6df6abe353be2773f2700159c65615babf39ab5b48114d2b49267672ae10f.77b59256a4cf8343ae0f923246a81489fc8d82f98d082edc2d2037c977c0d9d0
+All model checkpoint weights were used when initializing GeneralizedRCNN.
+
+All the weights of GeneralizedRCNN were initialized from the model checkpoint at unc-nlp/frcnn-vg-finetuned.
+If your task is similar to the task the model of the checkpoint was trained on, you can already use GeneralizedRCNN for predictions without further training.
+LXRT encoder with 9 l_layers, 5 x_layers, and 5 r_layers.
+Load LXMERT pre-trained model from snap/pretrained/model
+
+Weights in loaded but not in model:
+answer_head.logit_fc.0.bias
+answer_head.logit_fc.0.weight
+answer_head.logit_fc.2.bias
+answer_head.logit_fc.2.weight
+answer_head.logit_fc.3.bias
+answer_head.logit_fc.3.weight
+cls.predictions.bias
+cls.predictions.decoder.weight
+cls.predictions.transform.LayerNorm.bias
+cls.predictions.transform.LayerNorm.weight
+cls.predictions.transform.dense.bias
+cls.predictions.transform.dense.weight
+cls.seq_relationship.bias
+cls.seq_relationship.weight
+obj_predict_head.decoder_dict.attr.bias
+obj_predict_head.decoder_dict.attr.weight
+obj_predict_head.decoder_dict.feat.bias
+obj_predict_head.decoder_dict.feat.weight
+obj_predict_head.decoder_dict.obj.bias
+obj_predict_head.decoder_dict.obj.weight
+obj_predict_head.transform.LayerNorm.bias
+obj_predict_head.transform.LayerNorm.weight
+obj_predict_head.transform.dense.bias
+obj_predict_head.transform.dense.weight
+
+Weights in model but not in loaded:
+
+BlockedUnlockPickup-v0
+  0%|          | 0/27 [00:00<?, ?it/s]  7%|▋         | 2/27 [00:00<00:01, 15.53it/s] 15%|█▍        | 4/27 [00:00<00:02,  8.76it/s] 22%|██▏       | 6/27 [00:00<00:02,  7.63it/s] 30%|██▉       | 8/27 [00:00<00:02,  7.82it/s] 33%|███▎      | 9/27 [00:01<00:02,  7.46it/s] 37%|███▋      | 10/27 [00:01<00:02,  7.84it/s] 41%|████      | 11/27 [00:01<00:02,  7.04it/s] 44%|████▍     | 12/27 [00:01<00:02,  7.40it/s] 48%|████▊     | 13/27 [00:01<00:01,  7.38it/s] 52%|█████▏    | 14/27 [00:01<00:01,  6.87it/s] 59%|█████▉    | 16/27 [00:02<00:01,  7.57it/s] 63%|██████▎   | 17/27 [00:02<00:01,  7.19it/s] 67%|██████▋   | 18/27 [00:02<00:01,  7.51it/s] 70%|███████   | 19/27 [00:02<00:01,  6.75it/s] 78%|███████▊  | 21/27 [00:02<00:00,  7.40it/s] 81%|████████▏ | 22/27 [00:02<00:00,  6.97it/s] 85%|████████▌ | 23/27 [00:03<00:00,  7.52it/s] 89%|████████▉ | 24/27 [00:03<00:00,  6.94it/s] 93%|█████████▎| 25/27 [00:03<00:00,  7.08it/s] 96%|█████████▋| 26/27 [00:03<00:00,  7.71it/s]100%|██████████| 27/27 [00:03<00:00,  6.73it/s]100%|██████████| 27/27 [00:03<00:00,  7.38it/s]
+LavaCrossingS9N1-v0
+  0%|          | 0/1 [00:00<?, ?it/s]100%|██████████| 1/1 [00:00<00:00, 24.72it/s]
+LavaCrossingS9N2-v0
+LavaCrossingS9N3-v0
+  0%|          | 0/5 [00:00<?, ?it/s] 40%|████      | 2/5 [00:00<00:00, 10.32it/s] 80%|████████  | 4/5 [00:00<00:00,  6.47it/s]100%|██████████| 5/5 [00:00<00:00,  5.95it/s]100%|██████████| 5/5 [00:00<00:00,  6.37it/s]
+LavaCrossingS11N5-v0
+  0%|          | 0/4 [00:00<?, ?it/s] 50%|█████     | 2/4 [00:00<00:00, 12.16it/s]100%|██████████| 4/4 [00:00<00:00,  7.25it/s]100%|██████████| 4/4 [00:00<00:00,  7.57it/s]
+SimpleCrossingS9N1-v0
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00,  8.36it/s]100%|██████████| 2/2 [00:00<00:00,  8.34it/s]
+SimpleCrossingS9N2-v0
+  0%|          | 0/3 [00:00<?, ?it/s] 67%|██████▋   | 2/3 [00:00<00:00,  7.49it/s]100%|██████████| 3/3 [00:00<00:00,  6.09it/s]100%|██████████| 3/3 [00:00<00:00,  6.31it/s]
+SimpleCrossingS9N3-v0
+DistShift1-v0
+DistShift2-v0
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 10.97it/s]100%|██████████| 2/2 [00:00<00:00, 10.94it/s]
+DoorKey-5x5-v0
+DoorKey-6x6-v0
+  0%|          | 0/1 [00:00<?, ?it/s]100%|██████████| 1/1 [00:00<00:00, 22.98it/s]
+DoorKey-8x8-v0
+  0%|          | 0/30 [00:00<?, ?it/s]  7%|▋         | 2/30 [00:00<00:02, 12.20it/s] 13%|█▎        | 4/30 [00:00<00:02, 11.32it/s] 20%|██        | 6/30 [00:00<00:03,  7.98it/s] 23%|██▎       | 7/30 [00:00<00:02,  7.84it/s] 27%|██▋       | 8/30 [00:00<00:02,  8.19it/s] 30%|███       | 9/30 [00:01<00:03,  6.97it/s] 37%|███▋      | 11/30 [00:01<00:02,  8.69it/s] 40%|████      | 12/30 [00:01<00:02,  7.79it/s] 43%|████▎     | 13/30 [00:01<00:02,  6.67it/s] 47%|████▋     | 14/30 [00:01<00:02,  6.82it/s] 50%|█████     | 15/30 [00:01<00:02,  7.33it/s] 57%|█████▋    | 17/30 [00:02<00:01,  8.07it/s] 60%|██████    | 18/30 [00:02<00:01,  7.60it/s] 67%|██████▋   | 20/30 [00:02<00:01,  8.25it/s] 70%|███████   | 21/30 [00:02<00:01,  7.36it/s] 77%|███████▋  | 23/30 [00:03<00:01,  6.83it/s] 80%|████████  | 24/30 [00:03<00:00,  6.70it/s] 83%|████████▎ | 25/30 [00:03<00:00,  6.94it/s] 87%|████████▋ | 26/30 [00:03<00:00,  7.20it/s] 93%|█████████▎| 28/30 [00:03<00:00,  7.53it/s] 97%|█████████▋| 29/30 [00:03<00:00,  7.11it/s]100%|██████████| 30/30 [00:03<00:00,  7.01it/s]100%|██████████| 30/30 [00:03<00:00,  7.52it/s]
+DoorKey-16x16-v0
+  0%|          | 0/47 [00:00<?, ?it/s]  4%|▍         | 2/47 [00:00<00:04,  9.57it/s]  9%|▊         | 4/47 [00:00<00:04,  9.16it/s] 11%|█         | 5/47 [00:00<00:04,  8.47it/s] 13%|█▎        | 6/47 [00:00<00:04,  8.39it/s] 15%|█▍        | 7/47 [00:00<00:05,  7.45it/s] 17%|█▋        | 8/47 [00:00<00:04,  7.80it/s] 19%|█▉        | 9/47 [00:01<00:05,  6.82it/s] 21%|██▏       | 10/47 [00:01<00:04,  7.54it/s] 23%|██▎       | 11/47 [00:01<00:05,  6.80it/s] 26%|██▌       | 12/47 [00:01<00:04,  7.09it/s] 28%|██▊       | 13/47 [00:01<00:04,  7.14it/s] 30%|██▉       | 14/47 [00:01<00:04,  6.73it/s] 32%|███▏      | 15/47 [00:02<00:04,  6.82it/s] 34%|███▍      | 16/47 [00:02<00:04,  6.59it/s] 36%|███▌      | 17/47 [00:02<00:04,  7.04it/s] 38%|███▊      | 18/47 [00:02<00:04,  6.48it/s] 40%|████      | 19/47 [00:02<00:04,  6.69it/s] 43%|████▎     | 20/47 [00:02<00:04,  6.58it/s] 45%|████▍     | 21/47 [00:02<00:03,  6.81it/s] 47%|████▋     | 22/47 [00:03<00:03,  6.55it/s] 49%|████▉     | 23/47 [00:03<00:03,  6.67it/s] 51%|█████     | 24/47 [00:03<00:03,  6.44it/s] 53%|█████▎    | 25/47 [00:03<00:03,  6.73it/s] 55%|█████▌    | 26/47 [00:03<00:03,  6.53it/s] 57%|█████▋    | 27/47 [00:03<00:02,  6.74it/s] 60%|█████▉    | 28/47 [00:03<00:02,  6.55it/s] 62%|██████▏   | 29/47 [00:04<00:02,  6.84it/s] 64%|██████▍   | 30/47 [00:04<00:02,  6.37it/s] 66%|██████▌   | 31/47 [00:04<00:02,  6.66it/s] 68%|██████▊   | 32/47 [00:04<00:02,  6.39it/s] 70%|███████   | 33/47 [00:04<00:02,  6.82it/s] 72%|███████▏  | 34/47 [00:04<00:02,  6.28it/s] 74%|███████▍  | 35/47 [00:05<00:01,  6.85it/s] 77%|███████▋  | 36/47 [00:05<00:01,  6.37it/s] 79%|███████▊  | 37/47 [00:05<00:01,  6.63it/s] 81%|████████  | 38/47 [00:05<00:01,  6.39it/s] 83%|████████▎ | 39/47 [00:05<00:01,  6.74it/s] 85%|████████▌ | 40/47 [00:05<00:01,  6.42it/s] 87%|████████▋ | 41/47 [00:05<00:00,  6.91it/s] 89%|████████▉ | 42/47 [00:06<00:00,  6.42it/s] 91%|█████████▏| 43/47 [00:06<00:00,  6.79it/s] 94%|█████████▎| 44/47 [00:06<00:00,  6.44it/s] 96%|█████████▌| 45/47 [00:06<00:00,  6.62it/s] 98%|█████████▊| 46/47 [00:06<00:00,  6.47it/s]100%|██████████| 47/47 [00:06<00:00,  7.04it/s]100%|██████████| 47/47 [00:06<00:00,  6.86it/s]
+Dynamic-Obstacles-5x5-v0
+  0%|          | 0/1 [00:00<?, ?it/s]100%|██████████| 1/1 [00:00<00:00, 28.46it/s]
+Dynamic-Obstacles-Random-5x5-v0
+  0%|          | 0/1 [00:00<?, ?it/s]100%|██████████| 1/1 [00:00<00:00, 24.38it/s]
+Dynamic-Obstacles-6x6-v0
+  0%|          | 0/1 [00:00<?, ?it/s]100%|██████████| 1/1 [00:00<00:00, 24.24it/s]
+Dynamic-Obstacles-Random-6x6-v0
+  0%|          | 0/1 [00:00<?, ?it/s]100%|██████████| 1/1 [00:00<00:00, 28.33it/s]
+Dynamic-Obstacles-8x8-v0
+Dynamic-Obstacles-16x16-v0
+  0%|          | 0/47 [00:00<?, ?it/s]  4%|▍         | 2/47 [00:00<00:02, 16.89it/s]  9%|▊         | 4/47 [00:00<00:03, 13.35it/s] 13%|█▎        | 6/47 [00:00<00:04, 10.16it/s] 17%|█▋        | 8/47 [00:00<00:03, 10.55it/s] 21%|██▏       | 10/47 [00:00<00:03, 10.90it/s] 26%|██▌       | 12/47 [00:01<00:03, 10.03it/s] 30%|██▉       | 14/47 [00:01<00:03,  9.96it/s] 34%|███▍      | 16/47 [00:01<00:02, 10.40it/s] 38%|███▊      | 18/47 [00:01<00:02, 10.14it/s] 43%|████▎     | 20/47 [00:01<00:02,  9.68it/s] 47%|████▋     | 22/47 [00:02<00:02, 10.16it/s] 51%|█████     | 24/47 [00:02<00:02, 10.29it/s] 55%|█████▌    | 26/47 [00:02<00:02,  9.47it/s] 57%|█████▋    | 27/47 [00:02<00:02,  9.23it/s] 62%|██████▏   | 29/47 [00:02<00:01, 10.36it/s] 66%|██████▌   | 31/47 [00:03<00:01,  9.94it/s] 70%|███████   | 33/47 [00:03<00:01,  9.60it/s] 74%|███████▍  | 35/47 [00:03<00:01, 10.08it/s] 79%|███████▊  | 37/47 [00:03<00:00, 10.43it/s] 83%|████████▎ | 39/47 [00:03<00:00,  9.37it/s] 87%|████████▋ | 41/47 [00:04<00:00,  9.85it/s] 91%|█████████▏| 43/47 [00:04<00:00, 10.24it/s] 96%|█████████▌| 45/47 [00:04<00:00,  9.34it/s]100%|██████████| 47/47 [00:04<00:00,  9.75it/s]100%|██████████| 47/47 [00:04<00:00, 10.05it/s]
+Empty-5x5-v0
+  0%|          | 0/1 [00:00<?, ?it/s]100%|██████████| 1/1 [00:00<00:00, 29.39it/s]
+Empty-Random-5x5-v0
+  0%|          | 0/1 [00:00<?, ?it/s]100%|██████████| 1/1 [00:00<00:00, 27.57it/s]
+Empty-6x6-v0
+Traceback (most recent call last):
+  File "/home/zhangge/ZTY_Adam/MORE_/src/tasks/data_preprocessing/extract_minigrid_image.py", line 232, in <module>
+    a = data()
+  File "/home/zhangge/anaconda3/envs/MORE38/lib/python3.8/site-packages/torch/nn/modules/module.py", line 1051, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/home/zhangge/ZTY_Adam/MORE_/src/tasks/data_preprocessing/extract_minigrid_image.py", line 134, in forward
+    visual_feats, visual_pos = self.faster_r_cnn([img for img in self.observations])
+  File "/home/zhangge/ZTY_Adam/MORE_/src/tasks/data_preprocessing/fasterrcnn.py", line 62, in __call__
+    features = extend_tensor(features, features_batch)
+  File "./src/tasks/data_preprocessing/utils.py", line 560, in extend_tensor
+    return torch.cat((tensor1, tensor2), 0)
+RuntimeError: [enforce fail at CPUAllocator.cpp:71] . DefaultCPUAllocator: can't allocate memory: you tried to allocate 2353397760 bytes. Error code 12 (Cannot allocate memory)

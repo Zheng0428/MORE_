@@ -92,7 +92,7 @@
                 "--train",
                 "train,nominival",
                 "--valid",
-                "",
+                "valid",
                 "--llayers",
                 "9",
                 "--xlayers",

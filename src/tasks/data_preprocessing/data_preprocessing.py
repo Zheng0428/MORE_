@@ -50,12 +50,16 @@ visual_pos -> [batch_size, context_length, 36, 4]
 '''
 
 class MiniGridDataset(Dataset):
-    def __init__(self, train_path,max_length=1000, device = 'cpu'):
+    def __init__(self, splits, path, max_length=1000, device = 'cpu'):
         self.device = device
+        self.splits = splits.split(',')
+        path = path + ('%s.pt' % self.splits[0])
         self.max_length = max_length
+        # path = './data/minigrid_imgfeat/train.pt'
         # load dataset
-        if os.path.exists(train_path):
-            self.data = torch.load(train_path)
+        if os.path.exists(path):
+            self.data = torch.load(path)
+            print("Load %d data from split(s) %s." % (len(self.data[0]), splits))
         self.lxrt_feature = self.data[0]
         self.rtg = self.data[1]
         self.rewards = self.data[2]
@@ -79,13 +83,6 @@ class MiniGridDataset(Dataset):
         episode_length = self.episode_lengths[index]
         episode_end_idx = self.episode_idxs[index]
         padding_length = self.max_length - episode_length
-
-        # states = self.observations[episode_end_idx + 1 - episode_length:episode_end_idx + 1]
-        # states = states.numpy()
-        # states = np.concatenate((states,
-        #                         np.zeros(([padding_length] + list(states.shape[1:])),
-        #                         dtype= states.dtype)),
-        #                         axis=0)
 
         actions = self.actions[episode_end_idx + 1 - episode_length:episode_end_idx + 1]
         actions = actions.numpy()

@@ -1895,24 +1895,24 @@ class GeneralizedRCNN(nn.Module):
         }
         preds_per_image = torch.tensor([p.size(0) for p in boxes])
         boxes = pad_list_tensors(boxes, preds_per_image, **subset_kwargs)
-        classes = pad_list_tensors(classes, preds_per_image, **subset_kwargs)
-        class_probs = pad_list_tensors(class_probs, preds_per_image, **subset_kwargs)
-        attrs = pad_list_tensors(attrs, preds_per_image, **subset_kwargs)
-        attr_probs = pad_list_tensors(attr_probs, preds_per_image, **subset_kwargs)
+        # classes = pad_list_tensors(classes, preds_per_image, **subset_kwargs)
+        # class_probs = pad_list_tensors(class_probs, preds_per_image, **subset_kwargs)
+        # attrs = pad_list_tensors(attrs, preds_per_image, **subset_kwargs)
+        # attr_probs = pad_list_tensors(attr_probs, preds_per_image, **subset_kwargs)
         roi_features = pad_list_tensors(roi_features, preds_per_image, **subset_kwargs)
-        subset_kwargs["padding"] = None
-        preds_per_image = pad_list_tensors(preds_per_image, None, **subset_kwargs)
-        sizes = pad_list_tensors(image_shapes, None, **subset_kwargs)
+        # subset_kwargs["padding"] = None
+        # preds_per_image = pad_list_tensors(preds_per_image, None, **subset_kwargs)
+        # sizes = pad_list_tensors(image_shapes, None, **subset_kwargs)
         normalized_boxes = norm_box(boxes, original_sizes, device=self.device)
         return OrderedDict(
             {
-                "obj_ids": classes,
-                "obj_probs": class_probs,
-                "attr_ids": attrs,
-                "attr_probs": attr_probs,
-                "boxes": boxes,
-                "sizes": sizes,
-                "preds_per_image": preds_per_image,
+                # "obj_ids": classes,
+                # "obj_probs": class_probs,
+                # "attr_ids": attrs,
+                # "attr_probs": attr_probs,
+                # "boxes": boxes,
+                # "sizes": sizes,
+                # "preds_per_image": preds_per_image,
                 "roi_features": roi_features,
                 "normalized_boxes": normalized_boxes,
             }

@@ -1,0 +1,110 @@
+/home/zhangge/anaconda3/envs/MORE38/lib/python3.8/site-packages/torch/nn/functional.py:718: UserWarning: Named tensors and all their associated APIs are an experimental feature and subject to change. Please do not use them for anything important until they are released as stable. (Triggered internally at  /pytorch/c10/core/TensorImpl.h:1156.)
+  return torch.max_pool2d(input, kernel_size, stride, padding, dilation, ceil_mode)
+loading configuration file cache
+loading weights file https://cdn.huggingface.co/unc-nlp/frcnn-vg-finetuned/pytorch_model.bin from cache at /home/zhangge/.cache/torch/transformers/57f6df6abe353be2773f2700159c65615babf39ab5b48114d2b49267672ae10f.77b59256a4cf8343ae0f923246a81489fc8d82f98d082edc2d2037c977c0d9d0
+All model checkpoint weights were used when initializing GeneralizedRCNN.
+
+All the weights of GeneralizedRCNN were initialized from the model checkpoint at unc-nlp/frcnn-vg-finetuned.
+If your task is similar to the task the model of the checkpoint was trained on, you can already use GeneralizedRCNN for predictions without further training.
+LXRT encoder with 9 l_layers, 5 x_layers, and 5 r_layers.
+Load LXMERT pre-trained model from snap/pretrained/model
+
+Weights in loaded but not in model:
+answer_head.logit_fc.0.bias
+answer_head.logit_fc.0.weight
+answer_head.logit_fc.2.bias
+answer_head.logit_fc.2.weight
+answer_head.logit_fc.3.bias
+answer_head.logit_fc.3.weight
+cls.predictions.bias
+cls.predictions.decoder.weight
+cls.predictions.transform.LayerNorm.bias
+cls.predictions.transform.LayerNorm.weight
+cls.predictions.transform.dense.bias
+cls.predictions.transform.dense.weight
+cls.seq_relationship.bias
+cls.seq_relationship.weight
+obj_predict_head.decoder_dict.attr.bias
+obj_predict_head.decoder_dict.attr.weight
+obj_predict_head.decoder_dict.feat.bias
+obj_predict_head.decoder_dict.feat.weight
+obj_predict_head.decoder_dict.obj.bias
+obj_predict_head.decoder_dict.obj.weight
+obj_predict_head.transform.LayerNorm.bias
+obj_predict_head.transform.LayerNorm.weight
+obj_predict_head.transform.dense.bias
+obj_predict_head.transform.dense.weight
+
+Weights in model but not in loaded:
+
+BlockedUnlockPickup-v0
+LavaCrossingS9N1-v0
+LavaCrossingS9N2-v0
+LavaCrossingS9N3-v0
+LavaCrossingS11N5-v0
+SimpleCrossingS9N1-v0
+SimpleCrossingS9N2-v0
+SimpleCrossingS9N3-v0
+DistShift1-v0
+DistShift2-v0
+DoorKey-5x5-v0
+DoorKey-6x6-v0
+DoorKey-8x8-v0
+DoorKey-16x16-v0
+Dynamic-Obstacles-5x5-v0
+Dynamic-Obstacles-Random-5x5-v0
+Dynamic-Obstacles-6x6-v0
+Dynamic-Obstacles-Random-6x6-v0
+Dynamic-Obstacles-8x8-v0
+Dynamic-Obstacles-16x16-v0
+Empty-5x5-v0
+Empty-Random-5x5-v0
+Empty-6x6-v0
+Empty-Random-6x6-v0
+Empty-8x8-v0
+Empty-16x16-v0
+Fetch-5x5-N2-v0
+Fetch-6x6-N2-v0
+Fetch-8x8-N3-v0
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 10.99it/s]100%|██████████| 2/2 [00:00<00:00, 10.96it/s]
+FourRooms-v0
+  0%|          | 0/4 [00:00<?, ?it/s] 50%|█████     | 2/4 [00:00<00:00,  9.66it/s]100%|██████████| 4/4 [00:00<00:00,  8.48it/s]100%|██████████| 4/4 [00:00<00:00,  8.63it/s]
+GoToDoor-5x5-v0
+GoToDoor-6x6-v0
+  0%|          | 0/1 [00:00<?, ?it/s]100%|██████████| 1/1 [00:00<00:00, 24.24it/s]
+GoToDoor-8x8-v0
+  0%|          | 0/1 [00:00<?, ?it/s]100%|██████████| 1/1 [00:00<00:00, 20.79it/s]
+KeyCorridorS3R1-v0
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00,  5.36it/s]100%|██████████| 2/2 [00:00<00:00,  5.35it/s]
+KeyCorridorS3R2-v0
+  0%|          | 0/13 [00:00<?, ?it/s] 15%|█▌        | 2/13 [00:00<00:01, 10.12it/s] 31%|███       | 4/13 [00:00<00:01,  6.31it/s] 38%|███▊      | 5/13 [00:00<00:01,  5.93it/s] 46%|████▌     | 6/13 [00:00<00:01,  5.75it/s] 54%|█████▍    | 7/13 [00:01<00:01,  5.51it/s] 62%|██████▏   | 8/13 [00:01<00:00,  5.45it/s] 69%|██████▉   | 9/13 [00:01<00:00,  5.24it/s] 77%|███████▋  | 10/13 [00:01<00:00,  5.49it/s] 85%|████████▍ | 11/13 [00:01<00:00,  5.24it/s] 92%|█████████▏| 12/13 [00:02<00:00,  5.38it/s]100%|██████████| 13/13 [00:02<00:00,  5.27it/s]100%|██████████| 13/13 [00:02<00:00,  5.60it/s]
+KeyCorridorS3R3-v0
+  0%|          | 0/13 [00:00<?, ?it/s] 15%|█▌        | 2/13 [00:00<00:01,  7.69it/s] 23%|██▎       | 3/13 [00:00<00:01,  6.39it/s] 31%|███       | 4/13 [00:00<00:01,  5.79it/s] 38%|███▊      | 5/13 [00:00<00:01,  5.57it/s] 46%|████▌     | 6/13 [00:01<00:01,  5.34it/s] 54%|█████▍    | 7/13 [00:01<00:00,  6.04it/s] 62%|██████▏   | 8/13 [00:01<00:00,  6.00it/s] 69%|██████▉   | 9/13 [00:01<00:00,  5.17it/s] 77%|███████▋  | 10/13 [00:01<00:00,  5.52it/s] 85%|████████▍ | 11/13 [00:01<00:00,  5.43it/s] 92%|█████████▏| 12/13 [00:02<00:00,  5.28it/s]100%|██████████| 13/13 [00:02<00:00,  5.56it/s]100%|██████████| 13/13 [00:02<00:00,  5.66it/s]
+KeyCorridorS4R3-v0
+KeyCorridorS5R3-v0
+  0%|          | 0/36 [00:00<?, ?it/s]  6%|▌         | 2/36 [00:00<00:02, 14.75it/s] 11%|█         | 4/36 [00:00<00:05,  6.24it/s] 14%|█▍        | 5/36 [00:00<00:05,  5.87it/s] 17%|█▋        | 6/36 [00:00<00:04,  6.64it/s] 19%|█▉        | 7/36 [00:01<00:05,  5.46it/s] 22%|██▏       | 8/36 [00:01<00:05,  5.50it/s] 25%|██▌       | 9/36 [00:01<00:04,  6.17it/s] 28%|██▊       | 10/36 [00:01<00:04,  5.61it/s] 31%|███       | 11/36 [00:01<00:04,  5.07it/s] 33%|███▎      | 12/36 [00:02<00:04,  5.23it/s] 36%|███▌      | 13/36 [00:02<00:03,  6.08it/s] 39%|███▉      | 14/36 [00:02<00:04,  5.49it/s] 42%|████▏     | 15/36 [00:02<00:03,  5.36it/s] 44%|████▍     | 16/36 [00:02<00:03,  5.89it/s] 47%|████▋     | 17/36 [00:02<00:03,  5.42it/s] 50%|█████     | 18/36 [00:03<00:03,  5.30it/s] 53%|█████▎    | 19/36 [00:03<00:02,  5.77it/s] 56%|█████▌    | 20/36 [00:03<00:02,  5.76it/s] 58%|█████▊    | 21/36 [00:03<00:02,  5.26it/s] 61%|██████    | 22/36 [00:03<00:02,  5.67it/s] 64%|██████▍   | 23/36 [00:03<00:02,  6.02it/s] 67%|██████▋   | 24/36 [00:04<00:02,  5.87it/s] 69%|██████▉   | 25/36 [00:04<00:02,  4.14it/s] 75%|███████▌  | 27/36 [00:04<00:01,  6.11it/s] 78%|███████▊  | 28/36 [00:04<00:01,  5.60it/s] 81%|████████  | 29/36 [00:05<00:01,  5.28it/s] 83%|████████▎ | 30/36 [00:05<00:01,  5.15it/s] 86%|████████▌ | 31/36 [00:05<00:00,  5.80it/s] 89%|████████▉ | 32/36 [00:05<00:00,  4.91it/s] 92%|█████████▏| 33/36 [00:05<00:00,  5.62it/s] 94%|█████████▍| 34/36 [00:06<00:00,  5.68it/s] 97%|█████████▋| 35/36 [00:06<00:00,  5.59it/s]100%|██████████| 36/36 [00:06<00:00,  5.16it/s]100%|██████████| 36/36 [00:06<00:00,  5.58it/s]
+KeyCorridorS6R3-v0
+  0%|          | 0/47 [00:00<?, ?it/s]  4%|▍         | 2/47 [00:00<00:02, 15.46it/s]  9%|▊         | 4/47 [00:00<00:05,  7.19it/s] 13%|█▎        | 6/47 [00:00<00:05,  7.47it/s] 15%|█▍        | 7/47 [00:00<00:06,  6.35it/s] 17%|█▋        | 8/47 [00:01<00:05,  6.75it/s] 19%|█▉        | 9/47 [00:01<00:06,  6.32it/s] 21%|██▏       | 10/47 [00:01<00:06,  5.97it/s] 23%|██▎       | 11/47 [00:01<00:06,  5.94it/s] 26%|██▌       | 12/47 [00:01<00:05,  6.01it/s] 28%|██▊       | 13/47 [00:02<00:06,  5.58it/s] 30%|██▉       | 14/47 [00:02<00:06,  5.17it/s] 32%|███▏      | 15/47 [00:02<00:05,  5.70it/s] 34%|███▍      | 16/47 [00:02<00:05,  5.70it/s] 36%|███▌      | 17/47 [00:02<00:05,  5.18it/s] 40%|████      | 19/47 [00:02<00:04,  6.97it/s] 43%|████▎     | 20/47 [00:03<00:04,  6.05it/s] 45%|████▍     | 21/47 [00:03<00:04,  5.69it/s] 47%|████▋     | 22/47 [00:03<00:03,  6.29it/s] 49%|████▉     | 23/47 [00:03<00:04,  5.79it/s] 51%|█████     | 24/47 [00:03<00:04,  5.54it/s] 53%|█████▎    | 25/47 [00:04<00:03,  5.59it/s] 55%|█████▌    | 26/47 [00:04<00:03,  5.97it/s] 57%|█████▋    | 27/47 [00:04<00:03,  5.22it/s] 60%|█████▉    | 28/47 [00:04<00:03,  5.79it/s] 62%|██████▏   | 29/47 [00:04<00:02,  6.61it/s] 64%|██████▍   | 30/47 [00:04<00:02,  5.77it/s] 66%|██████▌   | 31/47 [00:05<00:02,  5.72it/s] 68%|██████▊   | 32/47 [00:05<00:02,  5.55it/s] 70%|███████   | 33/47 [00:05<00:02,  5.97it/s] 72%|███████▏  | 34/47 [00:05<00:02,  5.12it/s] 74%|███████▍  | 35/47 [00:05<00:02,  5.85it/s] 77%|███████▋  | 36/47 [00:05<00:01,  6.15it/s] 79%|███████▊  | 37/47 [00:06<00:01,  6.42it/s] 81%|████████  | 38/47 [00:06<00:01,  5.96it/s] 83%|████████▎ | 39/47 [00:06<00:01,  5.82it/s] 85%|████████▌ | 40/47 [00:06<00:01,  5.91it/s] 87%|████████▋ | 41/47 [00:06<00:00,  6.20it/s] 89%|████████▉ | 42/47 [00:07<00:00,  5.30it/s] 91%|█████████▏| 43/47 [00:07<00:00,  6.10it/s] 94%|█████████▎| 44/47 [00:07<00:00,  6.76it/s] 96%|█████████▌| 45/47 [00:07<00:00,  5.76it/s] 98%|█████████▊| 46/47 [00:07<00:00,  5.82it/s]100%|██████████| 47/47 [00:07<00:00,  6.17it/s]100%|██████████| 47/47 [00:07<00:00,  6.01it/s]
+LavaGapS5-v0
+LavaGapS6-v0
+  0%|          | 0/1 [00:00<?, ?it/s]100%|██████████| 1/1 [00:00<00:00, 29.00it/s]
+LavaGapS7-v0
+  0%|          | 0/1 [00:00<?, ?it/s]100%|██████████| 1/1 [00:00<00:00, 24.45it/s]
+LockedRoom-v0
+  0%|          | 0/9 [00:00<?, ?it/s] 22%|██▏       | 2/9 [00:00<00:00, 16.48it/s] 44%|████▍     | 4/9 [00:00<00:00, 13.18it/s] 67%|██████▋   | 6/9 [00:00<00:00, 10.65it/s] 89%|████████▉ | 8/9 [00:00<00:00, 10.36it/s]100%|██████████| 9/9 [00:00<00:00, 11.06it/s]
+MemoryS17Random-v0
+MemoryS13Random-v0
+  0%|          | 0/1 [00:00<?, ?it/s]100%|██████████| 1/1 [00:00<00:00, 27.54it/s]
+MemoryS13-v0
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 11.65it/s]100%|██████████| 2/2 [00:00<00:00, 11.62it/s]
+MemoryS11-v0
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 17.05it/s]100%|██████████| 2/2 [00:00<00:00, 16.99it/s]
+MultiRoom-N2-S4-v0
+  0%|          | 0/1 [00:00<?, ?it/s]100%|██████████| 1/1 [00:00<00:00, 29.13it/s]
+MultiRoom-N4-S5-v0
+PutNear-6x6-N2-v0
+PutNear-8x8-N3-v0
+  0%|          | 0/1 [00:00<?, ?it/s]100%|██████████| 1/1 [00:00<00:00, 28.05it/s]
+RedBlueDoors-6x6-v0
+RedBlueDoors-8x8-v0
+  0%|          | 0/47 [00:00<?, ?it/s]  4%|▍         | 2/47 [00:00<00:02, 15.97it/s]  9%|▊         | 4/47 [00:00<00:04, 10.07it/s] 13%|█▎        | 6/47 [00:00<00:04,  9.98it/s] 17%|█▋        | 8/47 [00:00<00:03, 11.03it/s] 21%|██▏       | 10/47 [00:00<00:03, 11.28it/s] 26%|██▌       | 12/47 [00:01<00:03, 11.41it/s] 30%|██▉       | 14/47 [00:01<00:03,  9.93it/s] 34%|███▍      | 16/47 [00:01<00:02, 10.37it/s] 38%|███▊      | 18/47 [00:01<00:02, 10.63it/s] 43%|████▎     | 20/47 [00:01<00:02, 10.92it/s] 47%|████▋     | 22/47 [00:02<00:02, 11.10it/s] 51%|█████     | 24/47 [00:02<00:02,  9.82it/s] 55%|█████▌    | 26/47 [00:02<00:02, 10.26it/s] 60%|█████▉    | 28/47 [00:02<00:01, 10.60it/s] 64%|██████▍   | 30/47 [00:02<00:01, 10.85it/s] 68%|██████▊   | 32/47 [00:03<00:01, 10.38it/s] 72%|███████▏  | 34/47 [00:03<00:01,  9.69it/s] 77%|███████▋  | 36/47 [00:03<00:01, 10.04it/s] 81%|████████  | 38/47 [00:03<00:01,  8.91it/s] 85%|████████▌ | 40/47 [00:03<00:00,  9.86it/s] 89%|████████▉ | 42/47 [00:04<00:00,  9.35it/s] 94%|█████████▎| 44/47 [00:04<00:00,  9.84it/s] 98%|█████████▊| 46/47 [00:04<00:00, 10.25it/s]100%|██████████| 47/47 [00:04<00:00, 10.31it/s]

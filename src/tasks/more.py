@@ -21,7 +21,7 @@ FINAL_LEN = 20
 DataTuple = collections.namedtuple("DataTuple", 'dataset loader')
 
 def get_data_tuple(splits: str, bs:int, device, shuffle = False, drop_last = False) -> DataTuple:
-    traj_dataset = MiniGridDataset(train_path = './data/minigrid_imgfeat/train_test.pt', max_length=1000, device = device)
+    traj_dataset = MiniGridDataset(splits, path = './data/minigrid_imgfeat/', max_length=1000, device = device)
     # a = len(traj_dataset)
     traj_data_loader = DataLoader(             
         traj_dataset,
@@ -36,7 +36,7 @@ class MORE:
     def __init__(self):
         # GPU options
         if torch.cuda.is_available():
-            self.device = torch.device("cuda:0")
+            self.device = torch.device("cuda:1")
         else:
             print(
                 "Either an invalid device or CUDA is not available. Defaulting to CPU."
@@ -48,7 +48,7 @@ class MORE:
         )
         if args.valid != "":
             self.valid_tuple = get_data_tuple(
-                args.valid, bs=1024,
+                args.valid, bs=64, device=self.device,
                 shuffle=False, drop_last=False
             )
         else:
@@ -83,7 +83,9 @@ class MORE:
         iter_wrapper = (lambda x: tqdm(x, total=len(loader))) if args.tqdm else (lambda x: x)
 
         best_valid = 0.
+        self.validate(eval_tuple)
         for epoch in range(args.epochs):
+            valid_score = self.validate(eval_tuple)
             for i, (lxmert_out, rtg, traj_mask, timesteps) in iter_wrapper(enumerate(loader)):
                 self.model.train()
                 self.optim.zero_grad()   #梯度归零
@@ -97,7 +99,7 @@ class MORE:
             # log_str = "\nEpoch %d: Train %0.2f\n" % (epoch, evaluator.evaluate(quesid2ans) * 100.)
 
             if self.valid_tuple is not None:  # Do Validation
-                valid_score = self.evaluate(eval_tuple)
+                valid_score = self.validate(eval_tuple)
                 if valid_score > best_valid:
                     best_valid = valid_score
                     self.save("BEST")
@@ -112,6 +114,20 @@ class MORE:
                 f.flush()
 
         self.save("LAST")
+
+    # 验证函数
+    def validate(self, dataloader):
+        dset, loader = dataloader
+        self.model.eval()
+        total_loss = 0
+        with torch.no_grad():
+            for i, (lxmert_out, rtg, traj_mask, timesteps) in enumerate(loader):
+                lxmert_out, traj_mask, rtg, timesteps = lxmert_out.to(self.device), traj_mask.to(self.device), rtg.to(self.device), timesteps.to(self.device)
+                outputs = self.model(lxmert_out, rtg, traj_mask, timesteps)
+                loss = outputs.loss
+                total_loss += loss.item()
+
+        return total_loss / len(loader)
 
     def predict(self, eval_tuple: DataTuple, dump=None):
         """

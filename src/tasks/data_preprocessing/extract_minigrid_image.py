@@ -92,8 +92,36 @@ class LoadData(nn.Module):
         return train_data, valid_data, test_data
     
     def forward(self):
+        flag = 0
+        val=[
+            'LavaCrossingS9N2-v0',  
+            'SimpleCrossingS9N3-v0', 
+            'DistShift1-v0',
+            'DoorKey-5x5-v0',
+            'Dynamic-Obstacles-8x8-v0',
+            'Empty-Random-6x6-v0',
+            'Empty-16x16-v0',
+            'Fetch-6x6-N2-v0',
+            'GoToDoor-5x5-v0',
+            'KeyCorridorS4R3-v0',
+            'LavaGapS5-v0',
+            'MemoryS17Random-v0',
+            'MultiRoom-N4-S5-v0',
+            'PutNear-6x6-N2-v0',
+            'RedBlueDoors-6x6-v0',
+        ]
+        sum = 0
         for env in self.trajectories:
             print(env)
+            if env == 'Fetch-6x6-N2-v0':
+                break
+            if env == 'Empty-6x6-v0':
+                flag = 1
+            if flag == 0:
+                continue
+            if env in val:
+                continue
+            sum += len(self.trajectories[env]['observations'])
             self.observations = extend_tensor(self.observations, torch.as_tensor(self.trajectories[env]['observations']))
             self.instructions.extend(self.trajectories[env]['instructions'])
             self.actions = extend_tensor(self.actions,torch.as_tensor(self.trajectories[env]['actions']))
@@ -108,6 +136,24 @@ class LoadData(nn.Module):
             visual_feats, visual_pos = self.faster_r_cnn([img for img in self.observations])
             action, visual_feats, visual_pos = action.to(self.device), visual_feats.to(self.device), visual_pos.to(self.device)
             self.lxrt_feature = extend_tensor(self.lxrt_feature,(self.lxrt_dataload(action, visual_feats, visual_pos)).to('cpu'))
+            # torch.save([self.lxrt_feature,
+            #             self.rtg,
+            #             self.rewards,
+            #             self.actions,
+            #             self.instructions,
+            #             self.episode_idxs,
+            #             self.episode_lengths]
+            #            ,self.outfile +'train20.pt')
+        data = torch.load(self.outfile + 'train10.pt')
+        self.lxrt_feature = extend_tensor(data[0] , self.lxrt_feature)
+        self.rtg = extend_tensor(data[1] , self.rtg)
+        self.rewards = extend_tensor(data[2] , self.rewards)
+        self.actions = extend_tensor(data[3] , self.actions)
+        self.instructions.extend(data[4])
+        self.episode_idxs = extend_tensor(data[5] , self.episode_idxs)
+        self.episode_lengths = extend_tensor(data[6] , self.episode_lengths)
+        print ('finish')
+        print (sum)
         data = [self.lxrt_feature,
                 self.rtg,
                 self.rewards,
@@ -115,24 +161,70 @@ class LoadData(nn.Module):
                 self.instructions,
                 self.episode_idxs,
                 self.episode_lengths]
-        train_data, valid_data, test_data = self.split_data(data, train_ratio=0.7, valid_ratio=0.15, test_ratio=0.15)
         if os.path.exists(self.outfile):
-            torch.save(train_data,self.outfile +'train.pt')
-            torch.save(valid_data,self.outfile +'valid.pt')
-            torch.save(test_data,self.outfile +'test.pt')
+            torch.save(data,self.outfile +'train1.pt')
 
 
         #np.savetxt('./obj/model.csv',model.encode().detach().numpy(),fmt='%.2f',delimiter=',')
         return self.outfile
 
+def split_data(data, train_ratio=0.7, valid_ratio=0.15, test_ratio=0.15):
+    assert train_ratio + valid_ratio + test_ratio == 1, "比例之和必须等于1"
 
+    # 计算数据总量
+    total_size = len(data[0])
+    
+    # 生成一个乱序索引数组
+    shuffled_indices = np.random.permutation(total_size)
+
+    # 计算各个子集的大小
+    train_size = int(total_size * train_ratio)
+    valid_size = int(total_size * valid_ratio)
+    train_data, valid_data, test_data = [], [], []
+    # 根据乱序索引划分数据集
+    for i in range(7):
+        train_data[i] = shuffled_indices[i][:train_size]
+        valid_data[i] = shuffled_indices[i][train_size:train_size + valid_size]
+        test_data[i] = shuffled_indices[i][train_size + valid_size:]
+    return train_data, valid_data, test_data
+
+def fuc2():
+    outfile = './data/minigrid_imgfeat/'
+    data = torch.load(outfile +'all.pt')
+    train_data, valid_data, test_data = split_data(data, train_ratio=0.7, valid_ratio=0.15, test_ratio=0.15)
+    if os.path.exists(outfile):
+        torch.save(train_data,outfile +'train.pt')
+        torch.save(valid_data,outfile +'valid.pt')
+        torch.save(test_data, outfile +'test.pt')
+        print ('finish')
+
+def fuc():
+    outfile = './data/minigrid_imgfeat/'
+    data1 = torch.load(outfile +'train1.pt')
+    a = len(data1[0])
+    data2 = torch.load(outfile +'train2.pt')
+    a = a + len(data2[0])
+    result = []
+    for i in range(7):
+        if i == 4:
+            concatenated = []
+            concatenated.extend(data1[i])
+            concatenated.extend(data2[i])
+        else:
+            concatenated = torch.cat((data1[i], data2[i]),dim = 0)
+        result.append(concatenated)
+    if os.path.exists(outfile):
+        torch.save(result,outfile +'train.pt')
+        print ('finish')
 
 
 if __name__ == '__main__':
     # Setup the configuration, normally do not need to touch these:
 
     # Load image ids, need modification for new datasets.
-    data = LoadData(device = 'cuda:1', max_length = 1000, dataset_path='/home/zhangge/ZTY_Adam/MORE/data/more/minigrid_traj.pkl')
-    a = data()
+    fuc()
+    # fuc2()
+    # data = LoadData(device = 'cuda:1', max_length = 1000, dataset_path='/home/zhangge/ZTY_Adam/MORE/data/more/minigrid_traj.pkl')
+    # a = data()
     # Generate TSV files, noramlly do not need to modify
 

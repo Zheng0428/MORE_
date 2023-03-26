@@ -1,0 +1,72 @@
+/home/zhangge/anaconda3/envs/MORE38/lib/python3.8/site-packages/torch/nn/functional.py:718: UserWarning: Named tensors and all their associated APIs are an experimental feature and subject to change. Please do not use them for anything important until they are released as stable. (Triggered internally at  /pytorch/c10/core/TensorImpl.h:1156.)
+  return torch.max_pool2d(input, kernel_size, stride, padding, dilation, ceil_mode)
+loading configuration file cache
+loading weights file https://cdn.huggingface.co/unc-nlp/frcnn-vg-finetuned/pytorch_model.bin from cache at /home/zhangge/.cache/torch/transformers/57f6df6abe353be2773f2700159c65615babf39ab5b48114d2b49267672ae10f.77b59256a4cf8343ae0f923246a81489fc8d82f98d082edc2d2037c977c0d9d0
+All model checkpoint weights were used when initializing GeneralizedRCNN.
+
+All the weights of GeneralizedRCNN were initialized from the model checkpoint at unc-nlp/frcnn-vg-finetuned.
+If your task is similar to the task the model of the checkpoint was trained on, you can already use GeneralizedRCNN for predictions without further training.
+LXRT encoder with 9 l_layers, 5 x_layers, and 5 r_layers.
+Load LXMERT pre-trained model from snap/pretrained/model
+
+Weights in loaded but not in model:
+answer_head.logit_fc.0.bias
+answer_head.logit_fc.0.weight
+answer_head.logit_fc.2.bias
+answer_head.logit_fc.2.weight
+answer_head.logit_fc.3.bias
+answer_head.logit_fc.3.weight
+cls.predictions.bias
+cls.predictions.decoder.weight
+cls.predictions.transform.LayerNorm.bias
+cls.predictions.transform.LayerNorm.weight
+cls.predictions.transform.dense.bias
+cls.predictions.transform.dense.weight
+cls.seq_relationship.bias
+cls.seq_relationship.weight
+obj_predict_head.decoder_dict.attr.bias
+obj_predict_head.decoder_dict.attr.weight
+obj_predict_head.decoder_dict.feat.bias
+obj_predict_head.decoder_dict.feat.weight
+obj_predict_head.decoder_dict.obj.bias
+obj_predict_head.decoder_dict.obj.weight
+obj_predict_head.transform.LayerNorm.bias
+obj_predict_head.transform.LayerNorm.weight
+obj_predict_head.transform.dense.bias
+obj_predict_head.transform.dense.weight
+
+Weights in model but not in loaded:
+
+BlockedUnlockPickup-v0
+LavaCrossingS9N1-v0
+LavaCrossingS9N2-v0
+LavaCrossingS9N3-v0
+LavaCrossingS11N5-v0
+SimpleCrossingS9N1-v0
+SimpleCrossingS9N2-v0
+SimpleCrossingS9N3-v0
+DistShift1-v0
+DistShift2-v0
+DoorKey-5x5-v0
+DoorKey-6x6-v0
+DoorKey-8x8-v0
+DoorKey-16x16-v0
+Dynamic-Obstacles-5x5-v0
+Dynamic-Obstacles-Random-5x5-v0
+Dynamic-Obstacles-6x6-v0
+Dynamic-Obstacles-Random-6x6-v0
+Dynamic-Obstacles-8x8-v0
+Dynamic-Obstacles-16x16-v0
+Empty-5x5-v0
+Empty-Random-5x5-v0
+Empty-6x6-v0
+  0%|          | 0/1 [00:00<?, ?it/s]100%|██████████| 1/1 [00:00<00:00, 27.67it/s]
+Empty-Random-6x6-v0
+Empty-8x8-v0
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 2/2 [00:00<00:00, 17.52it/s]100%|██████████| 2/2 [00:00<00:00, 17.45it/s]
+Empty-16x16-v0
+Fetch-5x5-N2-v0
+  0%|          | 0/1 [00:00<?, ?it/s]100%|██████████| 1/1 [00:00<00:00, 29.29it/s]
+Fetch-6x6-N2-v0
+finish
+117

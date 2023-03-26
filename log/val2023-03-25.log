@@ -1,0 +1,110 @@
+/home/zhangge/anaconda3/envs/MORE38/lib/python3.8/site-packages/torch/nn/functional.py:718: UserWarning: Named tensors and all their associated APIs are an experimental feature and subject to change. Please do not use them for anything important until they are released as stable. (Triggered internally at  /pytorch/c10/core/TensorImpl.h:1156.)
+  return torch.max_pool2d(input, kernel_size, stride, padding, dilation, ceil_mode)
+loading configuration file cache
+loading weights file https://cdn.huggingface.co/unc-nlp/frcnn-vg-finetuned/pytorch_model.bin from cache at /home/zhangge/.cache/torch/transformers/57f6df6abe353be2773f2700159c65615babf39ab5b48114d2b49267672ae10f.77b59256a4cf8343ae0f923246a81489fc8d82f98d082edc2d2037c977c0d9d0
+All model checkpoint weights were used when initializing GeneralizedRCNN.
+
+All the weights of GeneralizedRCNN were initialized from the model checkpoint at unc-nlp/frcnn-vg-finetuned.
+If your task is similar to the task the model of the checkpoint was trained on, you can already use GeneralizedRCNN for predictions without further training.
+LXRT encoder with 9 l_layers, 5 x_layers, and 5 r_layers.
+Load LXMERT pre-trained model from snap/pretrained/model
+
+Weights in loaded but not in model:
+answer_head.logit_fc.0.bias
+answer_head.logit_fc.0.weight
+answer_head.logit_fc.2.bias
+answer_head.logit_fc.2.weight
+answer_head.logit_fc.3.bias
+answer_head.logit_fc.3.weight
+cls.predictions.bias
+cls.predictions.decoder.weight
+cls.predictions.transform.LayerNorm.bias
+cls.predictions.transform.LayerNorm.weight
+cls.predictions.transform.dense.bias
+cls.predictions.transform.dense.weight
+cls.seq_relationship.bias
+cls.seq_relationship.weight
+obj_predict_head.decoder_dict.attr.bias
+obj_predict_head.decoder_dict.attr.weight
+obj_predict_head.decoder_dict.feat.bias
+obj_predict_head.decoder_dict.feat.weight
+obj_predict_head.decoder_dict.obj.bias
+obj_predict_head.decoder_dict.obj.weight
+obj_predict_head.transform.LayerNorm.bias
+obj_predict_head.transform.LayerNorm.weight
+obj_predict_head.transform.dense.bias
+obj_predict_head.transform.dense.weight
+
+Weights in model but not in loaded:
+
+BlockedUnlockPickup-v0
+LavaCrossingS9N1-v0
+LavaCrossingS9N2-v0
+  0%|          | 0/8 [00:00<?, ?it/s] 25%|██▌       | 2/8 [00:00<00:00, 17.11it/s] 50%|█████     | 4/8 [00:00<00:00, 13.73it/s] 75%|███████▌  | 6/8 [00:00<00:00, 12.87it/s]100%|██████████| 8/8 [00:00<00:00, 12.46it/s]100%|██████████| 8/8 [00:00<00:00, 12.93it/s]
+LavaCrossingS9N3-v0
+LavaCrossingS11N5-v0
+SimpleCrossingS9N1-v0
+SimpleCrossingS9N2-v0
+SimpleCrossingS9N3-v0
+  0%|          | 0/4 [00:00<?, ?it/s] 50%|█████     | 2/4 [00:00<00:00, 15.72it/s]100%|██████████| 4/4 [00:00<00:00, 12.97it/s]100%|██████████| 4/4 [00:00<00:00, 13.29it/s]
+DistShift1-v0
+  0%|          | 0/1 [00:00<?, ?it/s]100%|██████████| 1/1 [00:00<00:00, 25.37it/s]
+DistShift2-v0
+DoorKey-5x5-v0
+  0%|          | 0/1 [00:00<?, ?it/s]100%|██████████| 1/1 [00:00<00:00, 24.63it/s]
+DoorKey-6x6-v0
+DoorKey-8x8-v0
+DoorKey-16x16-v0
+Dynamic-Obstacles-5x5-v0
+Dynamic-Obstacles-Random-5x5-v0
+Dynamic-Obstacles-6x6-v0
+Dynamic-Obstacles-Random-6x6-v0
+Dynamic-Obstacles-8x8-v0
+  0%|          | 0/4 [00:00<?, ?it/s] 50%|█████     | 2/4 [00:00<00:00, 11.63it/s]100%|██████████| 4/4 [00:00<00:00,  8.68it/s]100%|██████████| 4/4 [00:00<00:00,  9.01it/s]
+Dynamic-Obstacles-16x16-v0
+Empty-5x5-v0
+Empty-Random-5x5-v0
+Empty-6x6-v0
+Empty-Random-6x6-v0
+  0%|          | 0/1 [00:00<?, ?it/s]100%|██████████| 1/1 [00:00<00:00, 27.63it/s]
+Empty-8x8-v0
+Empty-16x16-v0
+  0%|          | 0/3 [00:00<?, ?it/s] 67%|██████▋   | 2/3 [00:00<00:00,  7.96it/s]100%|██████████| 3/3 [00:00<00:00,  8.46it/s]100%|██████████| 3/3 [00:00<00:00,  8.33it/s]
+Fetch-5x5-N2-v0
+Fetch-6x6-N2-v0
+  0%|          | 0/1 [00:00<?, ?it/s]100%|██████████| 1/1 [00:00<00:00, 15.61it/s]
+Fetch-8x8-N3-v0
+FourRooms-v0
+GoToDoor-5x5-v0
+  0%|          | 0/1 [00:00<?, ?it/s]100%|██████████| 1/1 [00:00<00:00, 22.82it/s]
+GoToDoor-6x6-v0
+GoToDoor-8x8-v0
+KeyCorridorS3R1-v0
+KeyCorridorS3R2-v0
+KeyCorridorS3R3-v0
+KeyCorridorS4R3-v0
+  0%|          | 0/23 [00:00<?, ?it/s]  9%|▊         | 2/23 [00:00<00:02,  8.88it/s] 13%|█▎        | 3/23 [00:00<00:02,  8.34it/s] 22%|██▏       | 5/23 [00:00<00:01,  9.37it/s] 26%|██▌       | 6/23 [00:00<00:02,  8.40it/s] 30%|███       | 7/23 [00:00<00:02,  6.33it/s] 35%|███▍      | 8/23 [00:01<00:02,  7.00it/s] 43%|████▎     | 10/23 [00:01<00:01,  8.22it/s] 48%|████▊     | 11/23 [00:01<00:01,  7.44it/s] 52%|█████▏    | 12/23 [00:01<00:01,  5.57it/s] 57%|█████▋    | 13/23 [00:01<00:01,  6.19it/s] 65%|██████▌   | 15/23 [00:02<00:01,  7.25it/s] 70%|██████▉   | 16/23 [00:02<00:01,  5.90it/s] 74%|███████▍  | 17/23 [00:02<00:00,  6.46it/s] 78%|███████▊  | 18/23 [00:02<00:00,  6.73it/s] 83%|████████▎ | 19/23 [00:02<00:00,  7.30it/s] 87%|████████▋ | 20/23 [00:02<00:00,  5.92it/s] 91%|█████████▏| 21/23 [00:03<00:00,  6.65it/s]100%|██████████| 23/23 [00:03<00:00,  7.70it/s]100%|██████████| 23/23 [00:03<00:00,  7.09it/s]
+KeyCorridorS5R3-v0
+KeyCorridorS6R3-v0
+LavaGapS5-v0
+  0%|          | 0/1 [00:00<?, ?it/s]100%|██████████| 1/1 [00:00<00:00, 28.13it/s]
+LavaGapS6-v0
+LavaGapS7-v0
+LockedRoom-v0
+MemoryS17Random-v0
+  0%|          | 0/1 [00:00<?, ?it/s]100%|██████████| 1/1 [00:00<00:00, 26.13it/s]
+MemoryS13Random-v0
+MemoryS13-v0
+MemoryS11-v0
+MultiRoom-N2-S4-v0
+MultiRoom-N4-S5-v0
+  0%|          | 0/6 [00:00<?, ?it/s] 33%|███▎      | 2/6 [00:00<00:00, 10.67it/s] 67%|██████▋   | 4/6 [00:00<00:00,  9.46it/s] 83%|████████▎ | 5/6 [00:00<00:00,  7.45it/s]100%|██████████| 6/6 [00:00<00:00,  6.64it/s]100%|██████████| 6/6 [00:00<00:00,  7.43it/s]
+PutNear-6x6-N2-v0
+  0%|          | 0/1 [00:00<?, ?it/s]100%|██████████| 1/1 [00:00<00:00, 27.12it/s]
+PutNear-8x8-N3-v0
+RedBlueDoors-6x6-v0
+  0%|          | 0/1 [00:00<?, ?it/s]100%|██████████| 1/1 [00:00<00:00, 25.31it/s]
+RedBlueDoors-8x8-v0
+Unlock-v0
+finish
+3142

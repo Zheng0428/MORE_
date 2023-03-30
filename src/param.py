@@ -64,6 +64,8 @@ def parse_args():
                              'the model would be trained from scratch. If --fromScratch is'
                              ' not specified, the model would load BERT-pre-trained weights by'
                              ' default. ')
+    parser.add_argument('--datapath', dest='data_path', type=str, default=None,
+                        help='Load the data.')
 
     # Optimization
     parser.add_argument("--mceLoss", dest='mce_loss', action='store_const', default=False, const=True)

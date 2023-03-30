@@ -3,54 +3,70 @@
 import sys
 sys.path.append("./src")
 import os
+os.environ["CUDA_VISIBLE_DEVICES"] = "0,1,2,3" 
 import collections
+
+import torch.distributed as dist
+from torch.nn.parallel import DistributedDataParallel as DDP
+from torch.utils.data.distributed import DistributedSampler
 
 import torch
 import torch.nn as nn
 from torch.utils.data.dataloader import DataLoader
 from tqdm import tqdm
-
 from param import args
-from pretrain.qa_answer_table import load_lxmert_qa
 from tasks.more_model import MOREModel
 from tasks.data_preprocessing.data_preprocessing import MiniGridDataset
 
 HIDDEN_NUM = 20000
 FINAL_LEN = 20
+MAX_LENGTH = 1000
 
-DataTuple = collections.namedtuple("DataTuple", 'dataset loader')
+DataTuple = collections.namedtuple("DataTuple", 'dataset loader sampler')
 
-def get_data_tuple(splits: str, bs:int, device, shuffle = False, drop_last = False) -> DataTuple:
+def get_data_tuple(splits: str, bs:int, device, data_path, shuffle = False, drop_last = False) -> DataTuple:
     # /home/zhangge/ZTY_Adam/data/
-    traj_dataset = MiniGridDataset(splits, path = './data/minigrid_imgfeat/', max_length=100, device = device)
+    traj_dataset = MiniGridDataset(splits, path = data_path, max_length = MAX_LENGTH, device = device)
     # a = len(traj_dataset)
+    traj_data_sampler = DistributedSampler(traj_dataset, shuffle=shuffle)
     traj_data_loader = DataLoader(             
         traj_dataset,
         batch_size = bs,
+        sampler = traj_data_sampler,
         shuffle = shuffle,   #shuffle = Ture :Randomly generated idx
         pin_memory = True,   
-        drop_last = drop_last
+        drop_last = drop_last,
+        num_workers = 8
         )                         
-    return DataTuple(dataset=traj_dataset, loader=traj_data_loader)
+    return DataTuple(dataset=traj_dataset, loader=traj_data_loader, sampler=traj_data_sampler)
 
 class MORE:
     def __init__(self):
+        if torch.cuda.device_count() > 1:
+            print("Let's use", torch.cuda.device_count(), "GPUs!")
+        self.local_rank = int(os.environ["LOCAL_RANK"])
+        dist.init_process_group(backend='nccl')
+        self.rank = dist.get_rank()
+        self.world_size = dist.get_world_size()
         # GPU options
         if torch.cuda.is_available():
-            self.device = torch.device("cuda:1")
+            self.device = torch.device("cuda")
         else:
             print(
                 "Either an invalid device or CUDA is not available. Defaulting to CPU."
             )
             self.device = torch.device("cpu")
+        torch.cuda.set_device(self.local_rank)
+        self.device = torch.device("cuda", self.local_rank)
         # Datasets
         self.train_tuple = get_data_tuple(
-            args.train, bs=args.batch_size, device=self.device, shuffle=True, drop_last=True
+            args.train, bs=args.batch_size, device=self.device, shuffle=False, drop_last=True, data_path = args.data_path
         )
         if args.valid != "":
             self.valid_tuple = get_data_tuple(
-                args.valid, bs=64, device=self.device,
-                shuffle=False, drop_last=False
+                args.valid, bs=128, device=self.device,
+                shuffle=False, drop_last=False,
+                data_path = args.data_path
             )
         else:
             self.valid_tuple = None
@@ -58,9 +74,7 @@ class MORE:
         # Model
         self.model = MOREModel() # Have already load the MORE_decoder weights
         self.model = self.model.to(self.device)
-
-        if args.multiGPU:
-            self.model.more_encoder.multi_gpu()
+        self.model = DDP(self.model, device_ids=[self.device], output_device=self.device)
 
         # Optimizer
         if 'bert' in args.optim:
@@ -74,18 +88,18 @@ class MORE:
                                   t_total=t_total)
         else:
             self.optim = args.optimizer(self.model.parameters(), args.lr)
-        
         # Output Directory
         self.output = args.output
         os.makedirs(self.output, exist_ok=True)
 
     def train(self, train_tuple, eval_tuple):
-        dset, loader = train_tuple
+        dset, loader, sampler = train_tuple
         iter_wrapper = (lambda x: tqdm(x, total=len(loader))) if args.tqdm else (lambda x: x)
 
         best_valid = 100.
         # valid_score = self.validate(eval_tuple)
         for epoch in range(args.epochs):
+            sampler.set_epoch(epoch)
             for i, (lxmert_out, rtg, traj_mask, timesteps) in iter_wrapper(enumerate(loader)):
                 self.model.train()
                 self.optim.zero_grad()   #梯度归零
@@ -93,12 +107,12 @@ class MORE:
                 output = self.model(lxmert_out, rtg, traj_mask, timesteps)
                 loss = output.loss
                 loss.backward()  #反向传播
-                # nn.utils.clip_grad_norm_(self.model.parameters(), 5.)  #解决梯度爆炸的问题
+                nn.utils.clip_grad_norm_(self.model.parameters(), 5.)  #解决梯度爆炸的问题
                 self.optim.step()  #参数更新
 
             # log_str = "\nEpoch %d: Train %0.2f\n" % (epoch, evaluator.evaluate(quesid2ans) * 100.)
             log_str = ''
-            if self.valid_tuple is not None:  # Do Validation
+            if self.valid_tuple is not None and self.rank == 0:  # Do Validation on main process only
                 valid_score = self.validate(eval_tuple)
                 if valid_score < best_valid:
                     best_valid = valid_score
@@ -107,13 +121,15 @@ class MORE:
                 log_str += "Epoch %d: Valid %0.2f\n" % (epoch, valid_score * 100.) + \
                            "Epoch %d: Best %0.2f\n" % (epoch, best_valid * 100.)
 
-            print(log_str, end='')
+            if self.rank == 0:
+                print(log_str, end='')
 
-            with open(self.output + "/log.log", 'a') as f:
-                f.write(log_str)
-                f.flush()
+                with open(self.output + "/log.log", 'a') as f:
+                    f.write(log_str)
+                    f.flush()
 
-        self.save("LAST")
+        if self.rank == 0:
+            self.save("LAST")
 
     # 验证函数
     def validate(self, dataloader):
@@ -129,9 +145,6 @@ class MORE:
 
         return total_loss / len(loader)
     
-    def save(self, name):
-        torch.save(self.model.state_dict(),
-                   os.path.join(self.output, "%s.pth" % name))
         
     def predict(self, eval_tuple: DataTuple, dump=None):
         """
@@ -186,7 +199,6 @@ class MORE:
 if __name__ == "__main__":
     # Build Class
     more = MORE()
-
     # Load MORE model weights
     # Note: It is different from loading LXMERT pre-trained weights.
     if args.load is not None:

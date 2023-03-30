@@ -41,6 +41,9 @@ class MOREModel(nn.Module):
         len_o = 1                #turn to 1 token
         self.compression_model = MLPModel(len_i, HIDDEN_NUM, len_o)
 
+    def multi_gpu(self):
+        self.more_decoder = nn.DataParallel(self.more_decoder)
+
     def forward(self, lxmert_out, rtg, traj_mask, timesteps):
         """
         b -- batch_size, l -- traj_len, d -- dim 

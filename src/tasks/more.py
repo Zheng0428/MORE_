@@ -21,7 +21,8 @@ FINAL_LEN = 20
 DataTuple = collections.namedtuple("DataTuple", 'dataset loader')
 
 def get_data_tuple(splits: str, bs:int, device, shuffle = False, drop_last = False) -> DataTuple:
-    traj_dataset = MiniGridDataset(splits, path = './data/minigrid_imgfeat/', max_length=1000, device = device)
+    # /home/zhangge/ZTY_Adam/data/
+    traj_dataset = MiniGridDataset(splits, path = './data/minigrid_imgfeat/', max_length=100, device = device)
     # a = len(traj_dataset)
     traj_data_loader = DataLoader(             
         traj_dataset,
@@ -82,10 +83,9 @@ class MORE:
         dset, loader = train_tuple
         iter_wrapper = (lambda x: tqdm(x, total=len(loader))) if args.tqdm else (lambda x: x)
 
-        best_valid = 0.
-        self.validate(eval_tuple)
+        best_valid = 100.
+        # valid_score = self.validate(eval_tuple)
         for epoch in range(args.epochs):
-            valid_score = self.validate(eval_tuple)
             for i, (lxmert_out, rtg, traj_mask, timesteps) in iter_wrapper(enumerate(loader)):
                 self.model.train()
                 self.optim.zero_grad()   #梯度归零
@@ -93,14 +93,14 @@ class MORE:
                 output = self.model(lxmert_out, rtg, traj_mask, timesteps)
                 loss = output.loss
                 loss.backward()  #反向传播
-                nn.utils.clip_grad_norm_(self.model.parameters(), 5.)  #解决梯度爆炸的问题
+                # nn.utils.clip_grad_norm_(self.model.parameters(), 5.)  #解决梯度爆炸的问题
                 self.optim.step()  #参数更新
 
             # log_str = "\nEpoch %d: Train %0.2f\n" % (epoch, evaluator.evaluate(quesid2ans) * 100.)
-
+            log_str = ''
             if self.valid_tuple is not None:  # Do Validation
                 valid_score = self.validate(eval_tuple)
-                if valid_score > best_valid:
+                if valid_score < best_valid:
                     best_valid = valid_score
                     self.save("BEST")
 
@@ -121,14 +121,18 @@ class MORE:
         self.model.eval()
         total_loss = 0
         with torch.no_grad():
-            for i, (lxmert_out, rtg, traj_mask, timesteps) in enumerate(loader):
+             for i, (lxmert_out, rtg, traj_mask, timesteps) in enumerate(loader):
                 lxmert_out, traj_mask, rtg, timesteps = lxmert_out.to(self.device), traj_mask.to(self.device), rtg.to(self.device), timesteps.to(self.device)
                 outputs = self.model(lxmert_out, rtg, traj_mask, timesteps)
                 loss = outputs.loss
                 total_loss += loss.item()
 
         return total_loss / len(loader)
-
+    
+    def save(self, name):
+        torch.save(self.model.state_dict(),
+                   os.path.join(self.output, "%s.pth" % name))
+        
     def predict(self, eval_tuple: DataTuple, dump=None):
         """
         Predict the answers to questions in a data split.

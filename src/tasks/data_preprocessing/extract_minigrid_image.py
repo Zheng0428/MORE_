@@ -110,17 +110,36 @@ class LoadData(nn.Module):
             'PutNear-6x6-N2-v0',
             'RedBlueDoors-6x6-v0',
         ]
+        test = [
+            'LavaCrossingS9N1-v0',
+            'SimpleCrossingS9N1-v0',
+            'DistShift1-v0',
+            'DistShift2-v0',
+            'DoorKey-6x6-v0',
+            'Dynamic-Obstacles-6x6-v0',
+            'Dynamic-Obstacles-8x8-v0',
+            'Empty-6x6-v0',
+            'Empty-8x8-v0',
+            'Fetch-8x8-N3-v0',
+            'KeyCorridorS3R1-v0',
+            'Empty-16x16-v0',
+        ]
         sum = 0
         for env in self.trajectories:
             print(env)
-            if env == 'Fetch-6x6-N2-v0':
-                break
-            if env == 'Empty-6x6-v0':
-                flag = 1
-            if flag == 0:
+            print (len(self.trajectories[env]['observations']))
+            if env != 'KeyCorridorS5R3-v0':
                 continue
-            if env in val:
-                continue
+            # if env == 'Fetch-6x6-N2-v0':
+            #     break
+            # if env == 'Empty-6x6-v0':
+            #     flag = 1
+            # if flag == 0:
+            #     continue
+            # if env in val:
+            #     continue
+            # if env not in test:
+            #     continue
             sum += len(self.trajectories[env]['observations'])
             self.observations = extend_tensor(self.observations, torch.as_tensor(self.trajectories[env]['observations']))
             self.instructions.extend(self.trajectories[env]['instructions'])
@@ -136,33 +155,34 @@ class LoadData(nn.Module):
             visual_feats, visual_pos = self.faster_r_cnn([img for img in self.observations])
             action, visual_feats, visual_pos = action.to(self.device), visual_feats.to(self.device), visual_pos.to(self.device)
             self.lxrt_feature = extend_tensor(self.lxrt_feature,(self.lxrt_dataload(action, visual_feats, visual_pos)).to('cpu'))
-            # torch.save([self.lxrt_feature,
-            #             self.rtg,
-            #             self.rewards,
-            #             self.actions,
-            #             self.instructions,
-            #             self.episode_idxs,
-            #             self.episode_lengths]
-            #            ,self.outfile +'train20.pt')
-        data = torch.load(self.outfile + 'train10.pt')
-        self.lxrt_feature = extend_tensor(data[0] , self.lxrt_feature)
-        self.rtg = extend_tensor(data[1] , self.rtg)
-        self.rewards = extend_tensor(data[2] , self.rewards)
-        self.actions = extend_tensor(data[3] , self.actions)
-        self.instructions.extend(data[4])
-        self.episode_idxs = extend_tensor(data[5] , self.episode_idxs)
-        self.episode_lengths = extend_tensor(data[6] , self.episode_lengths)
+            torch.save([self.lxrt_feature,
+                        self.rtg,
+                        self.rewards,
+                        self.actions,
+                        self.instructions,
+                        self.episode_idxs,
+                        self.episode_lengths]
+                       ,self.outfile +'train.pt')
+            # break
+        # data = torch.load(self.outfile + 'train10.pt')
+        # self.lxrt_feature = extend_tensor(data[0] , self.lxrt_feature)
+        # self.rtg = extend_tensor(data[1] , self.rtg)
+        # self.rewards = extend_tensor(data[2] , self.rewards)
+        # self.actions = extend_tensor(data[3] , self.actions)
+        # self.instructions.extend(data[4])
+        # self.episode_idxs = extend_tensor(data[5] , self.episode_idxs)
+        # self.episode_lengths = extend_tensor(data[6] , self.episode_lengths)
         print ('finish')
         print (sum)
-        data = [self.lxrt_feature,
-                self.rtg,
-                self.rewards,
-                self.actions,
-                self.instructions,
-                self.episode_idxs,
-                self.episode_lengths]
-        if os.path.exists(self.outfile):
-            torch.save(data,self.outfile +'train1.pt')
+        # data = [self.lxrt_feature,
+        #         self.rtg,
+        #         self.rewards,
+        #         self.actions,
+        #         self.instructions,
+        #         self.episode_idxs,
+        #         self.episode_lengths]
+        # if os.path.exists(self.outfile):
+        #     torch.save(data,self.outfile +'train1.pt')
 
 
         #np.savetxt('./obj/model.csv',model.encode().detach().numpy(),fmt='%.2f',delimiter=',')
@@ -222,9 +242,9 @@ if __name__ == '__main__':
     # Setup the configuration, normally do not need to touch these:
 
     # Load image ids, need modification for new datasets.
-    fuc()
+    # fuc()
     # fuc2()
-    # data = LoadData(device = 'cuda:1', max_length = 1000, dataset_path='/home/zhangge/ZTY_Adam/MORE/data/more/minigrid_traj.pkl')
-    # a = data()
+    data = LoadData(device = 'cuda:1', max_length = 100, dataset_path='/home/zhangge/ZTY_Adam/MORE/data/more/minigrid_traj.pkl')
+    a = data()
     # Generate TSV files, noramlly do not need to modify
 

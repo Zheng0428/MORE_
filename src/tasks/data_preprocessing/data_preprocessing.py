@@ -55,7 +55,7 @@ class MiniGridDataset(Dataset):
         self.splits = splits.split(',')
         path = path + ('%s.pt' % self.splits[0])
         self.max_length = max_length
-        # path = './data/minigrid_imgfeat/train.pt'
+        #path = './data/minigrid_imgfeat/train.pt'
         # load dataset
         if os.path.exists(path):
             self.data = torch.load(path)
@@ -83,50 +83,66 @@ class MiniGridDataset(Dataset):
         episode_length = self.episode_lengths[index]
         episode_end_idx = self.episode_idxs[index]
         padding_length = self.max_length - episode_length
+        if padding_length < 0:
+            actions = self.actions[episode_end_idx + 1 - episode_length:episode_end_idx + 1]
+            actions = actions.numpy()
+            actions = actions[:self.max_length]
 
-        actions = self.actions[episode_end_idx + 1 - episode_length:episode_end_idx + 1]
-        actions = actions.numpy()
-        actions = np.concatenate((actions,
-                                np.zeros(([padding_length] + list(actions.shape[1:])),
-                                dtype=actions.dtype)),
+            rtg = self.rtg[episode_end_idx + 1 - episode_length:episode_end_idx + 1]
+            rtg = rtg.numpy()
+            rtg = rtg[:self.max_length]
+            timesteps = torch.arange(start=0, end=self.max_length, step=1)
+
+            traj_mask = torch.ones(self.max_length, dtype=torch.long)
+
+            # lxrt ouput part
+            lxrt_feature = self.lxrt_feature[episode_end_idx + 1 - episode_length:episode_end_idx + 1]
+            lxrt_feature = lxrt_feature.numpy()
+            lxrt_feature = lxrt_feature[:self.max_length]
+        else:
+            actions = self.actions[episode_end_idx + 1 - episode_length:episode_end_idx + 1]
+            actions = actions.numpy()
+            actions = np.concatenate((actions,
+                                    np.zeros(([padding_length] + list(actions.shape[1:])),
+                                    dtype=actions.dtype)),
+                                    axis=0)
+
+            rtg = self.rtg[episode_end_idx + 1 - episode_length:episode_end_idx + 1]
+            rtg = rtg.numpy()
+            rtg = np.concatenate((rtg,
+                                np.zeros(([padding_length] + list(rtg.shape[1:])),
+                                dtype=rtg.dtype)),
                                 axis=0)
 
-        rtg = self.rtg[episode_end_idx + 1 - episode_length:episode_end_idx + 1]
-        rtg = rtg.numpy()
-        rtg = np.concatenate((rtg,
-                            np.zeros(([padding_length] + list(rtg.shape[1:])),
-                            dtype=rtg.dtype)),
-                            axis=0)
-
-        # instructions = self.instructions[episode_end_idx + 1 - episode_length:episode_end_idx + 1]
-        # instructions = self.tokenizer(instructions, return_tensors="pt", max_length=32, padding='max_length')
-        # instructions_input_ids = torch.cat([instructions['input_ids'],
-        #                     torch.zeros(([padding_length] + list(instructions['input_ids'].shape[1:])),
-        #                     dtype=instructions['input_ids'].dtype)],
-        #                     dim=0)
-        # instructions_token_type_ids = torch.cat([instructions['token_type_ids'],
-        #                     torch.zeros(([padding_length] + list(instructions['token_type_ids'].shape[1:])),
-        #                     dtype=instructions['token_type_ids'].dtype)],
-        #                     dim=0)
-        # instructions_attention_mask = torch.cat([instructions['attention_mask'],
-        #             torch.zeros(([padding_length] + list(instructions['attention_mask'].shape[1:])),
-        #             dtype=instructions['attention_mask'].dtype)],
-        #             dim=0)
+            # instructions = self.instructions[episode_end_idx + 1 - episode_length:episode_end_idx + 1]
+            # instructions = self.tokenizer(instructions, return_tensors="pt", max_length=32, padding='max_length')
+            # instructions_input_ids = torch.cat([instructions['input_ids'],
+            #                     torch.zeros(([padding_length] + list(instructions['input_ids'].shape[1:])),
+            #                     dtype=instructions['input_ids'].dtype)],
+            #                     dim=0)
+            # instructions_token_type_ids = torch.cat([instructions['token_type_ids'],
+            #                     torch.zeros(([padding_length] + list(instructions['token_type_ids'].shape[1:])),
+            #                     dtype=instructions['token_type_ids'].dtype)],
+            #                     dim=0)
+            # instructions_attention_mask = torch.cat([instructions['attention_mask'],
+            #             torch.zeros(([padding_length] + list(instructions['attention_mask'].shape[1:])),
+            #             dtype=instructions['attention_mask'].dtype)],
+            #             dim=0)
 
 
-        timesteps = torch.arange(start=0, end=self.max_length, step=1)
+            timesteps = torch.arange(start=0, end=self.max_length, step=1)
 
-        traj_mask = torch.cat([torch.ones(episode_length, dtype=torch.long),
-                                torch.zeros(padding_length, dtype=torch.long)],
-                                dim=0)
+            traj_mask = torch.cat([torch.ones(episode_length, dtype=torch.long),
+                                    torch.zeros(padding_length, dtype=torch.long)],
+                                    dim=0)
 
-        # lxrt ouput part
-        lxrt_feature = self.lxrt_feature[episode_end_idx + 1 - episode_length:episode_end_idx + 1]
-        lxrt_feature = lxrt_feature.numpy()
-        lxrt_feature = np.concatenate((lxrt_feature,
-                                    np.zeros(([padding_length] + list(lxrt_feature.shape[1:])),
-                                    dtype= lxrt_feature.dtype)),
-                                    axis=0)
+            # lxrt ouput part
+            lxrt_feature = self.lxrt_feature[episode_end_idx + 1 - episode_length:episode_end_idx + 1]
+            lxrt_feature = lxrt_feature.numpy()
+            lxrt_feature = np.concatenate((lxrt_feature,
+                                        np.zeros(([padding_length] + list(lxrt_feature.shape[1:])),
+                                        dtype= lxrt_feature.dtype)),
+                                        axis=0)
         return lxrt_feature, rtg, traj_mask, timesteps
         #return  timesteps, states, actions, rtg, traj_mask, instructions_input_ids, instructions_token_type_ids, instructions_attention_mask, visual_feats, visual_pos
 

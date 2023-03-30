@@ -53,5 +53,5 @@ class MOREModel(nn.Module):
         :return: (b, l, 50257) 
         """
         lxmert_out = self.compression_model(lxmert_out)
-        output = self.more_decoder(inputs_embeds = lxmert_out, attention_mask = traj_mask, position_ids = timesteps, rtg = rtg)        #Be sure to pay attention to whether the input sequences are of the same length  #past_key_values = past 后面有时间可以加上
+        output = self.more_decoder(inputs_embeds = lxmert_out, labels = lxmert_out, attention_mask = traj_mask, position_ids = timesteps, rtg = rtg)        #Be sure to pay attention to whether the input sequences are of the same length  #past_key_values = past 后面有时间可以加上
         return output

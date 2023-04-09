@@ -1,0 +1,89 @@
+WARNING:__main__:*****************************************
+Setting OMP_NUM_THREADS environment variable for each process to be 1 in default, to avoid your system being overloaded, please further tune the variable for optimal performance in your application as needed. 
+*****************************************
+Let's use 4 GPUs!
+Let's use 4 GPUs!
+Let's use 4 GPUs!
+Let's use 4 GPUs!
+Load 22109 data from split(s) train.Load 22109 data from split(s) train.
+
+Load 22109 data from split(s) train.Load 22109 data from split(s) train.
+
+Load 3142 data from split(s) valid.Load 3142 data from split(s) valid.
+
+Load 3142 data from split(s) valid.
+Load 3142 data from split(s) valid.
+BertAdam Total Iters: 6910
+BertAdam Total Iters: 6910
+BertAdam Total Iters: 6910
+BertAdam Total Iters: 6910
+./src/lxrt/optimization.py:142: UserWarning: This overload of add_ is deprecated:
+	add_(Number alpha, Tensor other)
+Consider using one of the following signatures instead:
+	add_(Tensor other, *, Number alpha) (Triggered internally at  ../torch/csrc/utils/python_arg_parser.cpp:1025.)
+  next_m.mul_(beta1).add_(1 - beta1, grad)
+./src/lxrt/optimization.py:142: UserWarning: This overload of add_ is deprecated:
+	add_(Number alpha, Tensor other)
+Consider using one of the following signatures instead:
+	add_(Tensor other, *, Number alpha) (Triggered internally at  ../torch/csrc/utils/python_arg_parser.cpp:1025.)
+  next_m.mul_(beta1).add_(1 - beta1, grad)
+./src/lxrt/optimization.py:142: UserWarning: This overload of add_ is deprecated:
+	add_(Number alpha, Tensor other)
+Consider using one of the following signatures instead:
+	add_(Tensor other, *, Number alpha) (Triggered internally at  ../torch/csrc/utils/python_arg_parser.cpp:1025.)
+  next_m.mul_(beta1).add_(1 - beta1, grad)
+./src/lxrt/optimization.py:142: UserWarning: This overload of add_ is deprecated:
+	add_(Number alpha, Tensor other)
+Consider using one of the following signatures instead:
+	add_(Tensor other, *, Number alpha) (Triggered internally at  ../torch/csrc/utils/python_arg_parser.cpp:1025.)
+  next_m.mul_(beta1).add_(1 - beta1, grad)
+begin valid!!
+Epoch [1/5], Step [345/1382], Training Loss: 0.00050, Validation Loss: 0.01573
+begin valid!!
+Epoch [1/5], Step [690/1382], Training Loss: 0.01781, Validation Loss: 0.01352
+begin valid!!
+Epoch [1/5], Step [1035/1382], Training Loss: 0.00002, Validation Loss: 0.01764
+begin valid!!
+Epoch [1/5], Step [1380/1382], Training Loss: 0.00957, Validation Loss: 0.02009
+Epoch 0: Valid 2.01
+Epoch 0: Best 2.01
+begin valid!!
+Epoch [2/5], Step [345/1382], Training Loss: 0.00004, Validation Loss: 0.01481
+begin valid!!
+Epoch [2/5], Step [690/1382], Training Loss: 0.00955, Validation Loss: 0.01072
+begin valid!!
+Epoch [2/5], Step [1035/1382], Training Loss: 0.00001, Validation Loss: 0.01743
+begin valid!!
+Epoch [2/5], Step [1380/1382], Training Loss: 0.00892, Validation Loss: 0.01878
+Epoch 1: Valid 1.88
+Epoch 1: Best 1.88
+begin valid!!
+Epoch [3/5], Step [345/1382], Training Loss: 0.00005, Validation Loss: 0.01402
+begin valid!!
+Epoch [3/5], Step [690/1382], Training Loss: 0.01057, Validation Loss: 0.01083
+begin valid!!
+Epoch [3/5], Step [1035/1382], Training Loss: 0.00001, Validation Loss: 0.01647
+begin valid!!
+Epoch [3/5], Step [1380/1382], Training Loss: 0.00995, Validation Loss: 0.01794
+Epoch 2: Valid 1.79
+Epoch 2: Best 1.79
+begin valid!!
+Epoch [4/5], Step [345/1382], Training Loss: 0.00006, Validation Loss: 0.01402
+begin valid!!
+Epoch [4/5], Step [690/1382], Training Loss: 0.00879, Validation Loss: 0.01119
+begin valid!!
+Epoch [4/5], Step [1035/1382], Training Loss: 0.00002, Validation Loss: 0.01571
+begin valid!!
+Epoch [4/5], Step [1380/1382], Training Loss: 0.00697, Validation Loss: 0.01474
+Epoch 3: Valid 1.47
+Epoch 3: Best 1.47
+begin valid!!
+Epoch [5/5], Step [345/1382], Training Loss: 0.00016, Validation Loss: 0.01342
+begin valid!!
+Epoch [5/5], Step [690/1382], Training Loss: 0.01110, Validation Loss: 0.01226
+begin valid!!
+Epoch [5/5], Step [1035/1382], Training Loss: 0.00017, Validation Loss: 0.01373
+begin valid!!
+Epoch [5/5], Step [1380/1382], Training Loss: 0.00680, Validation Loss: 0.01210
+Epoch 4: Valid 1.21
+Epoch 4: Best 1.21

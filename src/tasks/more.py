@@ -3,8 +3,10 @@
 import sys
 sys.path.append("./src")
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "0,1,2,3" 
+# os.environ["CUDA_VISIBLE_DEVICES"] = "3,4,5,6" 
 import collections
+from torch.utils.tensorboard import SummaryWriter
+
 
 import torch.distributed as dist
 from torch.nn.parallel import DistributedDataParallel as DDP
@@ -40,6 +42,20 @@ def get_data_tuple(splits: str, bs:int, device, data_path, shuffle = False, drop
         )                         
     return DataTuple(dataset=traj_dataset, loader=traj_data_loader, sampler=traj_data_sampler)
 
+def get_valid_tuple(splits: str, bs:int, device, data_path, shuffle = False, drop_last = False):
+    # /home/zhangge/ZTY_Adam/data/
+    traj_dataset = MiniGridDataset(splits, path = data_path, max_length = MAX_LENGTH, device = device)
+    # a = len(traj_dataset)
+    traj_data_loader = DataLoader(             
+        traj_dataset,
+        batch_size = bs,
+        shuffle = shuffle,   #shuffle = Ture :Randomly generated idx
+        pin_memory = True,   
+        drop_last = drop_last,
+        num_workers = 8
+        )                         
+    return traj_data_loader
+
 class MORE:
     def __init__(self):
         if torch.cuda.device_count() > 1:
@@ -63,8 +79,8 @@ class MORE:
             args.train, bs=args.batch_size, device=self.device, shuffle=False, drop_last=True, data_path = args.data_path
         )
         if args.valid != "":
-            self.valid_tuple = get_data_tuple(
-                args.valid, bs=128, device=self.device,
+            self.valid_tuple = get_valid_tuple(
+                args.valid, bs=8, device=self.device,
                 shuffle=False, drop_last=False,
                 data_path = args.data_path
             )
@@ -74,7 +90,7 @@ class MORE:
         # Model
         self.model = MOREModel() # Have already load the MORE_decoder weights
         self.model = self.model.to(self.device)
-        self.model = DDP(self.model, device_ids=[self.device], output_device=self.device)
+        self.model = DDP(self.model, device_ids=[self.device], output_device=self.device, find_unused_parameters=True)
 
         # Optimizer
         if 'bert' in args.optim:
@@ -94,26 +110,38 @@ class MORE:
 
     def train(self, train_tuple, eval_tuple):
         dset, loader, sampler = train_tuple
-        iter_wrapper = (lambda x: tqdm(x, total=len(loader))) if args.tqdm else (lambda x: x)
-
+        log_dir = "./log/train_more"
+        writer = SummaryWriter(log_dir=os.path.join(log_dir, f"train{self.rank}"), flush_secs=10)
+        # iter_wrapper = (lambda x: tqdm(x, total=len(loader))) if args.tqdm else (lambda x: x)
         best_valid = 100.
+        print_interval = 0.25
+        steps_per_epoch = len(loader)
         # valid_score = self.validate(eval_tuple)
         for epoch in range(args.epochs):
             sampler.set_epoch(epoch)
-            for i, (lxmert_out, rtg, traj_mask, timesteps) in iter_wrapper(enumerate(loader)):
+            for idx, (lxmert_out, rtg, traj_mask, timesteps) in enumerate(loader):
                 self.model.train()
                 self.optim.zero_grad()   #梯度归零
                 lxmert_out, traj_mask, rtg, timesteps = lxmert_out.to(self.device), traj_mask.to(self.device), rtg.to(self.device), timesteps.to(self.device)
                 output = self.model(lxmert_out, rtg, traj_mask, timesteps)
                 loss = output.loss
-                loss.backward()  #反向传播
-                nn.utils.clip_grad_norm_(self.model.parameters(), 5.)  #解决梯度爆炸的问题
+                print (loss)
+                writer.add_scalar("loss",loss,epoch * len(loader) + idx)
+                loss.backward(requires_grad=True)  #反向传播
+                # nn.utils.clip_grad_norm_(self.model.parameters(), 5.)  #解决梯度爆炸的问题
                 self.optim.step()  #参数更新
 
+                if (idx + 1) % int(steps_per_epoch * print_interval) == 0 and self.rank == 0:
+                    # 计算验证损失
+                    valid_score = self.validate(eval_tuple)
+
+                    # 打印日志
+                    print(f"Epoch [{epoch+1}/{args.epochs}], Step [{idx+1}/{steps_per_epoch}], "
+                        f"Training Loss: {loss.item():.5f}, Validation Loss: {valid_score:.5f}")
             # log_str = "\nEpoch %d: Train %0.2f\n" % (epoch, evaluator.evaluate(quesid2ans) * 100.)
             log_str = ''
             if self.valid_tuple is not None and self.rank == 0:  # Do Validation on main process only
-                valid_score = self.validate(eval_tuple)
+                # valid_score = self.validate(eval_tuple)
                 if valid_score < best_valid:
                     best_valid = valid_score
                     self.save("BEST")
@@ -127,13 +155,13 @@ class MORE:
                 with open(self.output + "/log.log", 'a') as f:
                     f.write(log_str)
                     f.flush()
-
+        writer.close()
         if self.rank == 0:
             self.save("LAST")
 
     # 验证函数
-    def validate(self, dataloader):
-        dset, loader = dataloader
+    def validate(self, loader):
+        print ("begin valid!!")
         self.model.eval()
         total_loss = 0
         with torch.no_grad():

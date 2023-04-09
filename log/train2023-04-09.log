@@ -1,0 +1,107 @@
+WARNING:__main__:*****************************************
+Setting OMP_NUM_THREADS environment variable for each process to be 1 in default, to avoid your system being overloaded, please further tune the variable for optimal performance in your application as needed. 
+*****************************************
+Let's use 4 GPUs!
+Let's use 4 GPUs!
+Let's use 4 GPUs!
+Let's use 4 GPUs!
+Load 22109 data from split(s) train.Load 22109 data from split(s) train.Load 22109 data from split(s) train.
+
+
+Load 22109 data from split(s) train.
+Load 3142 data from split(s) valid.Load 3142 data from split(s) valid.
+Load 3142 data from split(s) valid.
+
+Load 3142 data from split(s) valid.
+BertAdam Total Iters: 6910
+BertAdam Total Iters: 6910
+BertAdam Total Iters: 6910
+BertAdam Total Iters: 6910
+tensor(23.7132, device='cuda:1', grad_fn=<NllLossBackward>)
+tensor(23.7132, device='cuda:3', grad_fn=<NllLossBackward>)
+tensor(23.7132, device='cuda:0', grad_fn=<NllLossBackward>)
+Traceback (most recent call last):
+  File "/home/biao/MORE_/src/tasks/more.py", line 234, in <module>
+    more.train(
+  File "/home/biao/MORE_/src/tasks/more.py", line 130, in train
+    loss.backward(requires_grad=True)  #反向传播
+TypeError: backward() got an unexpected keyword argument 'requires_grad'
+tensor(23.7132, device='cuda:2', grad_fn=<NllLossBackward>)
+Traceback (most recent call last):
+  File "/home/biao/MORE_/src/tasks/more.py", line 234, in <module>
+    more.train(
+  File "/home/biao/MORE_/src/tasks/more.py", line 130, in train
+    loss.backward(requires_grad=True)  #反向传播
+TypeError: backward() got an unexpected keyword argument 'requires_grad'
+Traceback (most recent call last):
+  File "/home/biao/MORE_/src/tasks/more.py", line 234, in <module>
+    more.train(
+  File "/home/biao/MORE_/src/tasks/more.py", line 130, in train
+    loss.backward(requires_grad=True)  #反向传播
+TypeError: backward() got an unexpected keyword argument 'requires_grad'
+Traceback (most recent call last):
+  File "/home/biao/MORE_/src/tasks/more.py", line 234, in <module>
+    more.train(
+  File "/home/biao/MORE_/src/tasks/more.py", line 130, in train
+    loss.backward(requires_grad=True)  #反向传播
+TypeError: backward() got an unexpected keyword argument 'requires_grad'
+ERROR:torch.distributed.elastic.multiprocessing.api:failed (exitcode: 1) local_rank: 1 (pid: 1520214) of binary: /home/biao/miniconda3/envs/MORE/bin/python
+/home/biao/miniconda3/envs/MORE/lib/python3.8/site-packages/torch/distributed/elastic/multiprocessing/errors/__init__.py:367: UserWarning: 
+
+**********************************************************************
+               CHILD PROCESS FAILED WITH NO ERROR_FILE                
+**********************************************************************
+CHILD PROCESS FAILED WITH NO ERROR_FILE
+Child process 1520214 (local_rank 1) FAILED (exitcode 1)
+Error msg: Process failed with exitcode 1
+Without writing an error file to <N/A>.
+While this DOES NOT affect the correctness of your application,
+no trace information about the error will be available for inspection.
+Consider decorating your top level entrypoint function with
+torch.distributed.elastic.multiprocessing.errors.record. Example:
+
+  from torch.distributed.elastic.multiprocessing.errors import record
+
+  @record
+  def trainer_main(args):
+     # do train
+**********************************************************************
+  warnings.warn(_no_error_file_warning_msg(rank, failure))
+Traceback (most recent call last):
+  File "/home/biao/miniconda3/envs/MORE/lib/python3.8/runpy.py", line 192, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/home/biao/miniconda3/envs/MORE/lib/python3.8/runpy.py", line 85, in _run_code
+    exec(code, run_globals)
+  File "/home/biao/miniconda3/envs/MORE/lib/python3.8/site-packages/torch/distributed/run.py", line 702, in <module>
+    main()
+  File "/home/biao/miniconda3/envs/MORE/lib/python3.8/site-packages/torch/distributed/elastic/multiprocessing/errors/__init__.py", line 361, in wrapper
+    return f(*args, **kwargs)
+  File "/home/biao/miniconda3/envs/MORE/lib/python3.8/site-packages/torch/distributed/run.py", line 698, in main
+    run(args)
+  File "/home/biao/miniconda3/envs/MORE/lib/python3.8/site-packages/torch/distributed/run.py", line 689, in run
+    elastic_launch(
+  File "/home/biao/miniconda3/envs/MORE/lib/python3.8/site-packages/torch/distributed/launcher/api.py", line 116, in __call__
+    return launch_agent(self._config, self._entrypoint, list(args))
+  File "/home/biao/miniconda3/envs/MORE/lib/python3.8/site-packages/torch/distributed/launcher/api.py", line 244, in launch_agent
+    raise ChildFailedError(
+torch.distributed.elastic.multiprocessing.errors.ChildFailedError: 
+*********************************************
+  /home/biao/MORE_/src/tasks/more.py FAILED  
+=============================================
+Root Cause:
+[0]:
+  time: 2023-04-09_22:36:54
+  rank: 1 (local_rank: 1)
+  exitcode: 1 (pid: 1520214)
+  error_file: <N/A>
+  msg: "Process failed with exitcode 1"
+=============================================
+Other Failures:
+[1]:
+  time: 2023-04-09_22:36:54
+  rank: 3 (local_rank: 3)
+  exitcode: 1 (pid: 1520217)
+  error_file: <N/A>
+  msg: "Process failed with exitcode 1"
+*********************************************
+

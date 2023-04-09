@@ -119,6 +119,65 @@ def load_tf_weights_in_gpt2(model, config, gpt2_checkpoint_path):
         pointer.data = torch.from_numpy(array)
     return model
 
+class LTMemory(nn.Module):
+    def __init__(self,
+                 hidden_state_size = 768,
+                 compress_size = 64,
+                 rtg_feature_dim = 1,
+                 context_len = 20
+                ):
+        super().__init__()
+        self.hidden_size = hidden_state_size
+        self.context_len = context_len
+        self.compress_size = compress_size
+        self.cache_k = []
+        self.cache_v = []
+        self.comb_rtg_k = nn.Linear(hidden_state_size + rtg_feature_dim, hidden_state_size)
+        self.comb_rtg_v = nn.Linear(hidden_state_size + rtg_feature_dim, hidden_state_size)
+        self.compress_k = Conv1D(compress_size, hidden_state_size)
+        self.compress_v = Conv1D(compress_size, hidden_state_size)
+        self.linear_k = nn.Linear(hidden_state_size + (context_len * compress_size), hidden_state_size)
+        self.linear_v = nn.Linear(hidden_state_size + (context_len * compress_size), hidden_state_size)
+
+    def forward(self, key, value, rtg):
+        # add rtg
+        rtg = rtg.unsqueeze(2)
+        key = torch.cat([key, rtg], dim=-1)
+        value = torch.cat([value, rtg], dim=-1)
+        key = self.comb_rtg_k(key)
+        value = self.comb_rtg_v(value)
+
+        #compress key and value
+        if len(self.cache_k) != 0:
+            self.cache_k[-1] = self.compress_k(self.cache_k[-1])
+            self.cache_v[-1] = self.compress_v(self.cache_v[-1])
+
+        old_key = torch.clone(key)
+        old_value = torch.clone(value)
+
+        #concatenate cached keys and values
+        if len(self.cache_k) != 0:
+            concat_keys = torch.cat([cached_key for cached_key in self.cache_k], dim=-1)
+            key = torch.cat([concat_keys, key], dim=-1)
+            concat_vals = torch.cat([cached_val for cached_val in self.cache_v], dim=-1)
+            value = torch.cat([concat_vals, value], dim=-1)
+
+        #padding if necessary
+        if len(self.cache_k) < self.context_len:
+            new_key = torch.zeros(key.shape[0], key.shape[1], self.hidden_size + (self.context_len * self.compress_size)).to(key.device)
+            new_value = torch.zeros(value.shape[0], value.shape[1], self.hidden_size + (self.context_len * self.compress_size)).to(value.device)
+            new_key[:, :, :key.shape[2]] = key
+            new_value[:, :, :value.shape[2]] = value
+            key, value = new_key, new_value
+
+        #cache old key and value
+        self.cache_k.append(old_key)
+        self.cache_v.append(old_value)
+
+        key = self.linear_k(key)
+        value = self.linear_k(value)
+
+        return key, value
 
 class GPT2Attention(nn.Module):
     def __init__(self, config, feature_dim, is_cross_attention=False, layer_idx=None):
@@ -135,6 +194,7 @@ class GPT2Attention(nn.Module):
         # add linear layer for extra feature
         self.key_linear = nn.Linear(config.n_embd + feature_dim, config.n_embd)
         self.value_linear = nn.Linear(config.n_embd + feature_dim, config.n_embd)
+        self.lt_memory = LTMemory(hidden_state_size=config.n_embd)
 
         self.embed_dim = config.hidden_size
         self.num_heads = config.num_attention_heads
@@ -314,13 +374,14 @@ class GPT2Attention(nn.Module):
         else:
             query, key, value = self.c_attn(hidden_states).split(self.split_size, dim=2)
 
-        # add rtg
-        rtg = rtg.unsqueeze(2)
-        key = torch.cat([key, rtg], dim=-1)
-        value = torch.cat([value, rtg], dim=-1)
-        # through the linear layer
-        key = self.key_linear(key)
-        value = self.value_linear(value)
+        # # add rtg
+        # rtg = rtg.unsqueeze(2)
+        # key = torch.cat([key, rtg], dim=-1)
+        # value = torch.cat([value, rtg], dim=-1)
+        # # through the linear layer
+        # key = self.key_linear(key)
+        # value = self.value_linear(value)
+        key, value = self.lt_memory(key=key, value=value, rtg=rtg)
 
         query = self._split_heads(query, self.num_heads, self.head_dim)
         key = self._split_heads(key, self.num_heads, self.head_dim)
@@ -394,7 +455,7 @@ class GPT2Block(nn.Module):
         encoder_attention_mask: Optional[torch.FloatTensor] = None,
         use_cache: Optional[bool] = False,
         output_attentions: Optional[bool] = False,
-        rtg:Optional[torch.FloatTensor] = None, 
+        rtg:Optional[torch.FloatTensor] = None,
     ) -> Union[Tuple[torch.Tensor], Optional[Tuple[torch.Tensor, Tuple[torch.FloatTensor, ...]]]]:
         residual = hidden_states
         hidden_states = self.ln_1(hidden_states)
@@ -779,7 +840,7 @@ class GPT2Model(GPT2PreTrainedModel):
         output_attentions: Optional[bool] = None,
         output_hidden_states: Optional[bool] = None,
         return_dict: Optional[bool] = None,
-        rtg:Optional[torch.FloatTensor] = None, 
+        rtg:Optional[torch.FloatTensor] = None,
     ) -> Union[Tuple, BaseModelOutputWithPastAndCrossAttentions]:
         output_attentions = output_attentions if output_attentions is not None else self.config.output_attentions
         output_hidden_states = (
@@ -1079,7 +1140,7 @@ class GPT2LMHeadModel(GPT2PreTrainedModel):
         output_attentions: Optional[bool] = None,
         output_hidden_states: Optional[bool] = None,
         return_dict: Optional[bool] = None,
-        rtg:Optional[torch.FloatTensor] = None, 
+        rtg:Optional[torch.FloatTensor] = None,
     ) -> Union[Tuple, CausalLMOutputWithCrossAttentions]:
         r"""
         labels (`torch.LongTensor` of shape `(batch_size, sequence_length)`, *optional*):
@@ -1265,7 +1326,7 @@ class GPT2DoubleHeadsModel(GPT2PreTrainedModel):
         output_attentions: Optional[bool] = None,
         output_hidden_states: Optional[bool] = None,
         return_dict: Optional[bool] = None,
-        rtg:Optional[torch.FloatTensor] = None, 
+        rtg:Optional[torch.FloatTensor] = None,
         **kwargs,
     ) -> Union[Tuple, GPT2DoubleHeadsModelOutput]:
         r"""
@@ -1427,7 +1488,7 @@ class GPT2ForSequenceClassification(GPT2PreTrainedModel):
         output_attentions: Optional[bool] = None,
         output_hidden_states: Optional[bool] = None,
         return_dict: Optional[bool] = None,
-        rtg:Optional[torch.FloatTensor] = None, 
+        rtg:Optional[torch.FloatTensor] = None,
     ) -> Union[Tuple, SequenceClassifierOutputWithPast]:
         r"""
         labels (`torch.LongTensor` of shape `(batch_size,)`, *optional*):
@@ -1564,7 +1625,7 @@ class GPT2ForTokenClassification(GPT2PreTrainedModel):
         output_attentions: Optional[bool] = None,
         output_hidden_states: Optional[bool] = None,
         return_dict: Optional[bool] = None,
-        rtg:Optional[torch.FloatTensor] = None, 
+        rtg:Optional[torch.FloatTensor] = None,
     ) -> Union[Tuple, TokenClassifierOutput]:
         r"""
         labels (`torch.LongTensor` of shape `(batch_size, sequence_length)`, *optional*):

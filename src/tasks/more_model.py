@@ -6,7 +6,8 @@ import transformers
 from param import args
 from lxrt.entry import LXRTEncoder,convert_sents_to_features
 from lxrt.modeling import BertLayerNorm, GeLU, MLPModel
-from tasks.gpt2 import GPT2LMHeadModel
+from tasks.more_gpt2 import GPT2LMHeadModel
+# from tasks.gpt2 import GPT2LMHeadModel
 import numpy as np
 
 ########################################
@@ -32,10 +33,10 @@ class MOREModel(nn.Module):
         transformers.logging.set_verbosity_error()
         # Fix the last four layers of the model and train only the first two layers
         self.more_decoder = GPT2LMHeadModel.from_pretrained('gpt2', num_hidden_layers = HIDDEN_LAYERS)
-        for i, layer in enumerate(self.more_decoder.transformer.h):
-            if i >= HIDDEN_LAYERS - 4:
-                for param in layer.parameters():
-                    param.requires_grad = False
+        # for i, layer in enumerate(self.more_decoder.transformer.h):
+        #     if i >= HIDDEN_LAYERS - 4:
+        #         for param in layer.parameters():
+        #             param.requires_grad = False
         #build compresstion model
         len_i = 36 + 20          #state's patch:36 and text's len:20
         len_o = 1                #turn to 1 token

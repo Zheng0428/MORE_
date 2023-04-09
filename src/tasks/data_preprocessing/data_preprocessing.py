@@ -53,7 +53,7 @@ class MiniGridDataset(Dataset):
     def __init__(self, splits, path, max_length=1000, device = 'cpu'):
         self.device = device
         self.splits = splits.split(',')
-        path = path + ('%s.pt' % self.splits[0])
+        path = path + ('%s_1.pt' % self.splits[0])
         self.max_length = max_length
         #path = './data/minigrid_imgfeat/train.pt'
         # load dataset

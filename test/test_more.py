@@ -143,7 +143,7 @@ class MORE:
                 with open(self.output + "/log.log", 'a') as f:
                     f.write(log_str)
                     f.flush()
-        writer.close()
+        # writer.close()
         if self.rank == 0:
             self.save("LAST")
 

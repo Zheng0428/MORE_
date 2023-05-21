@@ -46,7 +46,7 @@ from transformers.utils import (
 )
 from transformers.utils.model_parallel_utils import assert_device_map, get_device_map
 from transformers.models.gpt2.configuration_gpt2 import GPT2Config
-
+from collections import deque
 
 logger = logging.get_logger(__name__)
 
@@ -130,8 +130,8 @@ class LTMemory(nn.Module):
         self.hidden_size = hidden_state_size
         self.context_len = context_len
         self.compress_size = compress_size
-        self.cache_k = []
-        self.cache_v = []
+        self.cache_k = deque(maxlen=context_len)
+        self.cache_v = deque(maxlen=context_len)
         self.comb_rtg_k = nn.Linear(hidden_state_size + rtg_feature_dim, hidden_state_size)
         self.comb_rtg_v = nn.Linear(hidden_state_size + rtg_feature_dim, hidden_state_size)
         self.compress_k = Conv1D(compress_size, hidden_state_size)
@@ -146,7 +146,7 @@ class LTMemory(nn.Module):
         value = torch.cat([value, rtg], dim=-1)
         key = self.comb_rtg_k(key)
         value = self.comb_rtg_v(value)
-
+        
         #compress key and value
         if len(self.cache_k) != 0:
             self.cache_k[-1] = self.compress_k(self.cache_k[-1])
@@ -154,14 +154,18 @@ class LTMemory(nn.Module):
 
         old_key = torch.clone(key)
         old_value = torch.clone(value)
-
+        
         #concatenate cached keys and values
         if len(self.cache_k) != 0:
-            concat_keys = torch.cat([cached_key for cached_key in self.cache_k], dim=-1)
-            key = torch.cat([concat_keys, key], dim=-1)
-            concat_vals = torch.cat([cached_val for cached_val in self.cache_v], dim=-1)
-            value = torch.cat([concat_vals, value], dim=-1)
-
+            if key.size(0) != self.cache_k[-1].size(0) :
+                self.cache_k.clear()
+                self.cache_v.clear()
+            else:
+                concat_keys = torch.cat([cached_key for cached_key in self.cache_k], dim=-1)
+                key = torch.cat([concat_keys, key], dim=-1)
+                concat_vals = torch.cat([cached_val for cached_val in self.cache_v], dim=-1)
+                value = torch.cat([concat_vals, value], dim=-1)
+        
         #padding if necessary
         if len(self.cache_k) < self.context_len:
             new_key = torch.zeros(key.shape[0], key.shape[1], self.hidden_size + (self.context_len * self.compress_size)).to(key.device)
@@ -169,10 +173,14 @@ class LTMemory(nn.Module):
             new_key[:, :, :key.shape[2]] = key
             new_value[:, :, :value.shape[2]] = value
             key, value = new_key, new_value
+        # else:
+        #     self.cache_k.pop(0)
+        #     self.cache_v.pop(0)
 
+        
         #cache old key and value
-        self.cache_k.append(old_key)
-        self.cache_v.append(old_value)
+        self.cache_k.append(old_key.detach())
+        self.cache_v.append(old_value.detach())
 
         key = self.linear_k(key)
         value = self.linear_k(value)

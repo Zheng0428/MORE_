@@ -53,9 +53,9 @@ class MiniGridDataset(Dataset):
     def __init__(self, splits, path, max_length=1000, device = 'cpu'):
         self.device = device
         self.splits = splits.split(',')
-        path = path + ('%s_1.pt' % self.splits[0])
+        path = path + ('%s.pt' % self.splits[0])
         self.max_length = max_length
-        #path = './data/minigrid_imgfeat/train.pt'
+        # path = '/home/biao/data/atari/atari.pt'
         # load dataset
         if os.path.exists(path):
             self.data = torch.load(path)
@@ -63,10 +63,13 @@ class MiniGridDataset(Dataset):
         self.lxrt_feature = self.data[0]
         self.rtg = self.data[1]
         self.rewards = self.data[2]
-        self.actions = self.data[3]
-        self.instructions = self.data[4]
-        self.episode_idxs = self.data[5]
-        self.episode_lengths = self.data[6]
+        self.actions = self.data[3].cpu()
+        # self.instructions = self.data[4]
+        # self.episode_idxs = self.data[5]
+        # self.episode_lengths = self.data[6]
+
+        self.episode_idxs = self.data[4]
+        self.episode_lengths = self.data[5]
 
         '''
         Discounts to go -> option of having 1/0 for all return-to-go for an episode,

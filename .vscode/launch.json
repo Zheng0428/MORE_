@@ -13,9 +13,9 @@
                 "--train",
                 "train,nominival",
                 "--valid",
-                "valid",
+                "",
                 "--datapath",
-                "/home/biao/data/",
+                "/home/biao/data/atari/",
                 "--batchSize",
                 "8",
                 "--optim",
@@ -95,6 +95,18 @@
                 "--output",
                 "snap/more/more_lxr955_tiny/",
                 "--multiGPU",
+            ]
+        },
+        {
+            "name": "data",
+            "type": "python",
+            "request": "launch",
+            "program": "src/tasks/more.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args": [
+                "--loadLXMERT",
+                "./snap/pretrained/model",
             ]
         }
     ]

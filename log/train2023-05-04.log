@@ -1,0 +1,135 @@
+WARNING:__main__:*****************************************
+Setting OMP_NUM_THREADS environment variable for each process to be 1 in default, to avoid your system being overloaded, please further tune the variable for optimal performance in your application as needed. 
+*****************************************
+ERROR:torch.distributed.elastic.multiprocessing.errors.error_handler:{
+ Load 22109 data from split(s) train.Load 22109 data from split(s) train.
+
+Load 22109 data from split(s) train.
+Load 22109 data from split(s) train.
+Load 3142 data from split(s) valid.Load 3142 data from split(s) valid.
+
+Load 3142 data from split(s) valid.
+Load 3142 data from split(s) valid.
+BertAdam Total Iters: 5528
+BertAdam Total Iters: 5528
+BertAdam Total Iters: 5528
+BertAdam Total Iters: 5528
+[W reducer.cpp:1158] Warning: find_unused_parameters=True was specified in DDP constructor, but did not find any unused parameters in the forward pass. This flag results in an extra traversal of the autograd graph every iteration,  which can adversely affect performance. If your model indeed never has any unused parameters in the forward pass, consider turning this flag off. Note that this warning may be a false positive if your model has flow control causing later iterations to have unused parameters. (function operator())
+tensor(20.1100, device='cuda:0', grad_fn=<NllLossBackward>)
+[W reducer.cpp:1158] Warning: find_unused_parameters=True was specified in DDP constructor, but did not find any unused parameters in the forward pass. This flag results in an extra traversal of the autograd graph every iteration,  which can adversely affect performance. If your model indeed never has any unused parameters in the forward pass, consider turning this flag off. Note that this warning may be a false positive if your model has flow control causing later iterations to have unused parameters. (function operator())
+tensor(20.1100, device='cuda:1', grad_fn=<NllLossBackward>)
+[W reducer.cpp:1158] Warning: find_unused_parameters=True was specified in DDP constructor, but did not find any unused parameters in the forward pass. This flag results in an extra traversal of the autograd graph every iteration,  which can adversely affect performance. If your model indeed never has any unused parameters in the forward pass, consider turning this flag off. Note that this warning may be a false positive if your model has flow control causing later iterations to have unused parameters. (function operator())
+tensor(20.1100, device='cuda:3', grad_fn=<NllLossBackward>)
+[W reducer.cpp:1158] Warning: find_unused_parameters=True was specified in DDP constructor, but did not find any unused parameters in the forward pass. This flag results in an extra traversal of the autograd graph every iteration,  which can adversely affect performance. If your model indeed never has any unused parameters in the forward pass, consider turning this flag off. Note that this warning may be a false positive if your model has flow control causing later iterations to have unused parameters. (function operator())
+tensor(20.1100, device='cuda:2', grad_fn=<NllLossBackward>)
+./src/lxrt/optimization.py:142: UserWarning: This overload of add_ is deprecated:
+	add_(Number alpha, Tensor other)
+Consider using one of the following signatures instead:
+	add_(Tensor other, *, Number alpha) (Triggered internally at  ../torch/csrc/utils/python_arg_parser.cpp:1025.)
+  next_m.mul_(beta1).add_(1 - beta1, grad)
+./src/lxrt/optimization.py:142: UserWarning: This overload of add_ is deprecated:
+	add_(Number alpha, Tensor other)
+Consider using one of the following signatures instead:
+	add_(Tensor other, *, Number alpha) (Triggered internally at  ../torch/csrc/utils/python_arg_parser.cpp:1025.)
+  next_m.mul_(beta1).add_(1 - beta1, grad)
+./src/lxrt/optimization.py:142: UserWarning: This overload of add_ is deprecated:
+	add_(Number alpha, Tensor other)
+Consider using one of the following signatures instead:
+	add_(Tensor other, *, Number alpha) (Triggered internally at  ../torch/csrc/utils/python_arg_parser.cpp:1025.)
+  next_m.mul_(beta1).add_(1 - beta1, grad)
+./src/lxrt/optimization.py:142: UserWarning: This overload of add_ is deprecated:
+	add_(Number alpha, Tensor other)
+Consider using one of the following signatures instead:
+	add_(Tensor other, *, Number alpha) (Triggered internally at  ../torch/csrc/utils/python_arg_parser.cpp:1025.)
+  next_m.mul_(beta1).add_(1 - beta1, grad)
+Traceback (most recent call last):
+  File "/home/biao/MORE_/src/tasks/more.py", line 234, in <module>
+    more.train(
+  File "/home/biao/MORE_/src/tasks/more.py", line 126, in train
+    output = self.model(lxmert_out, rtg, traj_mask, timesteps)
+  File "/home/biao/miniconda3/envs/MORE/lib/python3.8/site-packages/torch/nn/modules/module.py", line 1051, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/home/biao/miniconda3/envs/MORE/lib/python3.8/site-packages/torch/nn/parallel/distributed.py", line 799, in forward
+    output = self.module(*inputs[0], **kwargs[0])
+  File "/home/biao/miniconda3/envs/MORE/lib/python3.8/site-packages/torch/nn/modules/module.py", line 1051, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "./src/tasks/more_model.py", line 60, in forward
+    output = self.more_decoder(inputs_embeds = lxmert_out, labels = lxmert_out, attention_mask = traj_mask, position_ids = timesteps, rtg = rtg)        #Be sure to pay attention to whether the input sequences are of the same length  #past_key_values = past 后面有时间可以加上
+  File "/home/biao/miniconda3/envs/MORE/lib/python3.8/site-packages/torch/nn/modules/module.py", line 1051, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "./src/tasks/gpt2.py", line 1092, in forward
+    transformer_outputs = self.transformer(
+  File "/home/biao/miniconda3/envs/MORE/lib/python3.8/site-packages/torch/nn/modules/module.py", line 1051, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "./src/tasks/gpt2.py", line 914, in forward
+    outputs = block(
+  File "/home/biao/miniconda3/envs/MORE/lib/python3.8/site-packages/torch/nn/modules/module.py", line 1051, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "./src/tasks/gpt2.py", line 440, in forward
+    feed_forward_hidden_states = self.mlp(hidden_states)
+  File "/home/biao/miniconda3/envs/MORE/lib/python3.8/site-packages/torch/nn/modules/module.py", line 1051, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "./src/tasks/gpt2.py", line 367, in forward
+    hidden_states = self.dropout(hidden_states)
+  File "/home/biao/miniconda3/envs/MORE/lib/python3.8/site-packages/torch/nn/modules/module.py", line 1051, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/home/biao/miniconda3/envs/MORE/lib/python3.8/site-packages/torch/nn/modules/dropout.py", line 58, in forward
+    return F.dropout(input, self.p, self.training, self.inplace)
+  File "/home/biao/miniconda3/envs/MORE/lib/python3.8/site-packages/torch/nn/functional.py", line 1168, in dropout
+    return _VF.dropout_(input, p, training) if inplace else _VF.dropout(input, p, training)
+RuntimeError: CUDA out of memory. Tried to allocate 20.00 MiB (GPU 0; 23.69 GiB total capacity; 21.92 GiB already allocated; 5.19 MiB free; 22.03 GiB reserved in total by PyTorch)
+ERROR:torch.distributed.elastic.multiprocessing.api:failed (exitcode: 1) local_rank: 0 (pid: 3028388) of binary: /home/biao/miniconda3/envs/MORE/bin/python
+/home/biao/miniconda3/envs/MORE/lib/python3.8/site-packages/torch/distributed/elastic/multiprocessing/errors/__init__.py:367: UserWarning: 
+
+**********************************************************************
+               CHILD PROCESS FAILED WITH NO ERROR_FILE                
+**********************************************************************
+CHILD PROCESS FAILED WITH NO ERROR_FILE
+Child process 3028388 (local_rank 0) FAILED (exitcode 1)
+Error msg: Process failed with exitcode 1
+Without writing an error file to <N/A>.
+While this DOES NOT affect the correctness of your application,
+no trace information about the error will be available for inspection.
+Consider decorating your top level entrypoint function with
+torch.distributed.elastic.multiprocessing.errors.record. Example:
+
+  from torch.distributed.elastic.multiprocessing.errors import record
+
+  @record
+  def trainer_main(args):
+     # do train
+**********************************************************************
+  warnings.warn(_no_error_file_warning_msg(rank, failure))
+Traceback (most recent call last):
+  File "/home/biao/miniconda3/envs/MORE/lib/python3.8/runpy.py", line 192, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/home/biao/miniconda3/envs/MORE/lib/python3.8/runpy.py", line 85, in _run_code
+    exec(code, run_globals)
+  File "/home/biao/miniconda3/envs/MORE/lib/python3.8/site-packages/torch/distributed/run.py", line 702, in <module>
+    main()
+  File "/home/biao/miniconda3/envs/MORE/lib/python3.8/site-packages/torch/distributed/elastic/multiprocessing/errors/__init__.py", line 361, in wrapper
+    return f(*args, **kwargs)
+  File "/home/biao/miniconda3/envs/MORE/lib/python3.8/site-packages/torch/distributed/run.py", line 698, in main
+    run(args)
+  File "/home/biao/miniconda3/envs/MORE/lib/python3.8/site-packages/torch/distributed/run.py", line 689, in run
+    elastic_launch(
+  File "/home/biao/miniconda3/envs/MORE/lib/python3.8/site-packages/torch/distributed/launcher/api.py", line 116, in __call__
+    return launch_agent(self._config, self._entrypoint, list(args))
+  File "/home/biao/miniconda3/envs/MORE/lib/python3.8/site-packages/torch/distributed/launcher/api.py", line 244, in launch_agent
+    raise ChildFailedError(
+torch.distributed.elastic.multiprocessing.errors.ChildFailedError: 
+*********************************************
+  /home/biao/MORE_/src/tasks/more.py FAILED  
+=============================================
+Root Cause:
+[0]:
+  time: 2023-05-04_21:10:21
+  rank: 0 (local_rank: 0)
+  exitcode: 1 (pid: 3028388)
+  error_file: <N/A>
+  msg: "Process failed with exitcode 1"
+=============================================
+Other Failures:
+  <NO_OTHER_FAILURES>
+*********************************************
+

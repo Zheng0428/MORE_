@@ -90,7 +90,7 @@ class MORE:
         # Model
         self.model = MOREModel() # Have already load the MORE_decoder weights
         self.model = self.model.to(self.device)
-        self.model = DDP(self.model, device_ids=[self.device], output_device=self.device, find_unused_parameters=True)
+        self.model = DDP(self.model, device_ids=[self.device], output_device=self.device)
 
         # Optimizer
         if 'bert' in args.optim:
@@ -127,8 +127,8 @@ class MORE:
                 loss = output.loss
                 print (loss)
                 writer.add_scalar("loss",loss,epoch * len(loader) + idx)
-                loss.backward(requires_grad=True)  #反向传播
-                # nn.utils.clip_grad_norm_(self.model.parameters(), 5.)  #解决梯度爆炸的问题
+                loss.backward()  #反向传播
+                nn.utils.clip_grad_norm_(self.model.parameters(), 5.)  #解决梯度爆炸的问题
                 self.optim.step()  #参数更新
 
                 if (idx + 1) % int(steps_per_epoch * print_interval) == 0 and self.rank == 0:
@@ -246,5 +246,4 @@ if __name__ == "__main__":
     #     else:
     #         print("DO NOT USE VALIDATION")
     #     more.train(vqa.train_tuple, vqa.valid_tuple)
-
 

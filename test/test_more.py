@@ -28,7 +28,7 @@ DataTuple = collections.namedtuple("DataTuple", 'dataset loader')
 
 def get_data_tuple(splits: str, bs:int, device, data_path, shuffle = False, drop_last = True) -> DataTuple:
     # /home/zhangge/ZTY_Adam/data/
-    traj_dataset = MiniGridDataset(splits, path = data_path, max_length = 250, device = device)
+    traj_dataset = MiniGridDataset(splits, path = data_path, max_length = 30, device = device)
     # a = len(traj_dataset)
     traj_data_loader = DataLoader(             
         traj_dataset,
@@ -42,7 +42,7 @@ def get_data_tuple(splits: str, bs:int, device, data_path, shuffle = False, drop
 
 def get_valid_tuple(splits: str, bs:int, device, data_path, shuffle = False, drop_last = True):
     # /home/zhangge/ZTY_Adam/data/
-    traj_dataset = MiniGridDataset(splits, path = data_path, max_length = 100, device = device)
+    traj_dataset = MiniGridDataset(splits, path = data_path, max_length = 1000, device = device)
     # a = len(traj_dataset)
     traj_data_loader = DataLoader(             
         traj_dataset,
@@ -60,7 +60,7 @@ class MORE:
             print("Let's use", torch.cuda.device_count(), "GPUs!")
         # GPU options
         if torch.cuda.is_available():
-            self.device = torch.device("cuda:3")
+            self.device = torch.device("cuda:1")
         else:
             print(
                 "Either an invalid device or CUDA is not available. Defaulting to CPU."
@@ -393,5 +393,4 @@ if __name__ == "__main__":
     #     else:
     #         print("DO NOT USE VALIDATION")
     #     more.train(vqa.train_tuple, vqa.valid_tuple)
-
 

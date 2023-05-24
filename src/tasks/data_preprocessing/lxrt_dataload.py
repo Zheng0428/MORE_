@@ -9,24 +9,62 @@ from lxrt.entry import LXRTEncoder,convert_sents_to_features
 from tasks.more_model import MAX_VQA_LENGTH
 from lxrt.tokenization import BertTokenizer
 from torch.utils.data.dataloader import DataLoader
-ACTION_SPACE_DIC={
-    0:"Move to the left direction.",
-    1:"Move to the right direction",
-    2:"Move upwards",
-    3:"Switch the current state or setting of something",
-    4:"Grab or take an item",
-    5:"Release or let go of an item",
-    6:"Indicates the completion of a task or a no-operation action"
-}
-ACTION_SPACE_LIST=[
+#Pong: ['NOOP', 'FIRE', 'RIGHT', 'LEFT', 'RIGHTFIRE', 'LEFTFIRE']
+#Breakout：['NOOP', 'FIRE', 'RIGHT', 'LEFT']
+#Qbert:['NOOP', 'FIRE', 'UP', 'RIGHT', 'LEFT', 'DOWN']
+#Seaquest：['NOOP', 'FIRE', 'UP', 'RIGHT', 'LEFT', 'DOWN', 'UPRIGHT', 'UPLEFT', 'DOWNRIGHT', 'DOWNLEFT', 'UPFIRE', 'RIGHTFIRE', 'LEFTFIRE', 'DOWNFIRE', 'UPRIGHTFIRE', 'UPLEFTFIRE', 'DOWNRIGHTFIRE', 'DOWNLEFTFIRE']
+BREAKOUT_ACTION_SPACE_LIST=[
+    "No action is taken, allowing the game to continue unchanged.",
+    "Launches a ball towards the bricks, aiming to break them.",
+    "Shifts the paddle to the right, intercepting the ball to prevent it from falling.",
+    "Shifts the paddle to the left, intercepting the ball to prevent it from falling."
+    ]
+PONG_ACTION_SPACE_LIST=[
+    "Does nothing, keeping the game state unchanged.",
+    "Launches the ball, initiating its movement.",
+    "Moves the right paddle upward to block the ball and prevent it from crossing the right boundary.",
+    "Moves the left paddle upward to block the ball and prevent it from crossing the left boundary.",
+    "Launches the ball towards the right boundary, enabling the left player to score.",
+    "Launches the ball towards the left boundary, enabling the right player to score."
+    ]
+QBERT_ACTION_SPACE_LIST=[
+    "Does nothing and allows the game to continue unchanged.",
+    "Launches Qbert's ball to attack enemies.",
+    "Moves Qbert one unit upward.",
+    "Moves Qbert one unit to the right.",
+    "Moves Qbert one unit to the left.",
+    "Moves Qbert one unit downward."
+    ]
+
+SEAQUEST_ACTION_SPACE_LIST=[
+    "Does nothing and maintains the game's current state.",
+    "Launches a torpedo to attack enemies.",
+    "Moves the submarine one unit upwards.",
+    "Moves the submarine one unit to the right.",
+    "Moves the submarine one unit to the left.",
+    "Moves the submarine one unit downwards.",
+    "Moves the submarine one unit diagonally up and to the right.",
+    "Moves the submarine one unit diagonally up and to the left.",
+    "Moves the submarine one unit diagonally down and to the right.",
+    "Moves the submarine one unit diagonally down and to the left.",
+    "Launches a torpedo upwards to attack enemies.",
+    "Launches a torpedo to the right to attack enemies.",
+    "Launches a torpedo to the left to attack enemies.",
+    "Launches a torpedo downwards to attack enemies.",
+    "Launches a torpedo diagonally up and to the right to attack enemies.",
+    "Launches a torpedo diagonally up and to the left to attack enemies.",
+    "Launches a torpedo diagonally down and to the right to attack enemies.",
+    "Launches a torpedo diagonally down and to the left to attack enemies."
+    ]
+MINIGRID_ACTION_SPACE_LIST=[
     "Move to the left direction.",
     "Move to the right direction",
-    "Move upwards",
+    "Move  upwards",
     "Switch the current state or setting of something",
     "Grab or take an item",
     "Release or let go of an item",
     "Indicates the completion of a task or a no-operation action"
-]
+    ]
 class LXMERT(nn.Module):
     def __init__(self, action_space, max_len, device):
         super().__init__()
@@ -70,7 +108,7 @@ class LXMTDataLoad(nn.Module):
         super().__init__()
         self.bs = bs
         self.device = device
-        self.model = LXMERT(ACTION_SPACE_LIST, MAX_VQA_LENGTH, device)
+        self.model = LXMERT(BREAKOUT_ACTION_SPACE_LIST, MAX_VQA_LENGTH, device)
         # Load lxmert_Encoder weights
         self.model.lxmert.load(args.load_lxmert)
 

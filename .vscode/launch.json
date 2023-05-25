@@ -15,7 +15,7 @@
                 "--valid",
                 "",
                 "--datapath",
-                "/home/biao/data/atari/",
+                "/home/zhangge/ZTY_Adam/MORE_/data/atari_imgfeat/",
                 "--batchSize",
                 "8",
                 "--optim",

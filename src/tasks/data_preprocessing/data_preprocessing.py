@@ -55,7 +55,7 @@ class MiniGridDataset(Dataset):
         self.splits = splits.split(',')
         path = path + ('%s.pt' % self.splits[0])
         self.max_length = max_length
-        # path = '/home/biao/data/atari/atari.pt'
+        path = '/home/zhangge/ZTY_Adam/MORE1_/data/atari_imgfeat/atari.pt'
         # load dataset
         if os.path.exists(path):
             self.data = torch.load(path)

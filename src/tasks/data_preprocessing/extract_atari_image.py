@@ -81,6 +81,9 @@ class LoadData(nn.Module):
 
         return train_data, valid_data, test_data
     
+    def lxrt_out(self, action, state):
+        pass
+
     def forward(self):
         if os.path.exists(self.outfile +'atari.pt'):
             data = torch.load(self.outfile +'atari.pt')

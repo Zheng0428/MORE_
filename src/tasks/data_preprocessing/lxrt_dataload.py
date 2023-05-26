@@ -122,7 +122,7 @@ class LXMTDataLoad(nn.Module):
                 drop_last = False
                 ) 
         a = len(lxrt_data_loader)
-        iter_wrapper = (lambda x: tqdm(x, total=len(lxrt_data_loader))) if True else (lambda x: x)
+        iter_wrapper = (lambda x: tqdm(x, total=len(lxrt_data_loader))) if False else (lambda x: x)
         model = self.model.to(self.device)
         model.eval()
         for i, (action, state, pos) in iter_wrapper(enumerate(lxrt_data_loader)):

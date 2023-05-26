@@ -35,7 +35,7 @@ def parse_args():
 
     # Data Splits
     parser.add_argument("--train", default='train')
-    parser.add_argument("--valid", default='valid')
+    parser.add_argument("--valid", default='')
     parser.add_argument("--test", default=None)
 
     # Training Hyper-parameters

@@ -35,7 +35,7 @@ def train(model, device, train_loader, optimizer, criterion, epoch):
             print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
                 epoch, batch_idx * len(data), len(train_loader.dataset),
                 100. * batch_idx / len(train_loader), loss.item()))
-    torch.save(model, outfile+'classifier.pth')
+    torch.save(model.state_dict(), outfile +'model/classifier.pth')
 
 def validate(model, device, test_loader):
     model.eval()
@@ -52,7 +52,7 @@ def validate(model, device, test_loader):
 
 def train_main(outfile):
     # 假设你的输入张量和目标张量是input和target
-    data = torch.load(outfile +'atari.pt')
+    data = torch.load(outfile +'atari_data/atari.pt')
     print("Load %d data from split(s) %s." % (len(data[0]), 'atari'))
     input = data[0]
     target = data[3]
@@ -84,7 +84,7 @@ def train_main(outfile):
     optimizer = optim.SGD(model.parameters(), lr=0.01, momentum=0.9)
     criterion = nn.CrossEntropyLoss()
 
-    for epoch in range(1, 2):
+    for epoch in range(1, 3):
         train(model, device, train_loader, optimizer, criterion, epoch)
         validate(model, device, test_loader)
         
@@ -123,8 +123,8 @@ def test_main(outfile):
     validate(model, device, test_loader)
 
 if __name__ == '__main__':
-    outfile = './data/atari_imgfeat/'
-    test_main(outfile)
+    outfile = '/home/biao/MORE_data/'
+    train_main(outfile)
 
 
 

@@ -22,3 +22,7 @@ opencv-python
 wget
 
 setuptools==59.5.0
+
+gym[atari]
+
+scikit-learn

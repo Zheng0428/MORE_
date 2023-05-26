@@ -1,5 +1,5 @@
 output=/home/biao/MORE_
-CUDA_VISIBLE_DEVICES="2,3,5,6" \
+CUDA_VISIBLE_DEVICES="3 \
     python -m torch.distributed.run --nproc_per_node=4 $output/src/tasks/more.py \
     --train train,nominival --valid valid  \
     --datapath /home/biao/data/   \

@@ -1,0 +1,1 @@
+nohup python /home/biao/MORE_/test/test_atari.py >> /home/biao/MORE_data/log/`date +'%Y-%m-%d'`.log 2>&1 &

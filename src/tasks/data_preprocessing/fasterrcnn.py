@@ -1,5 +1,5 @@
 import sys
-#sys.path.append("./src/tasks/data_preprocessing")
+sys.path.append("./src/tasks/data_preprocessing")
 import torch
 import numpy as np
 from processing_image import Preprocess

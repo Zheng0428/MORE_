@@ -1,7 +1,8 @@
 # coding=utf-8
 # Copyleft 2019 project LXRT.
 import sys
-sys.path.append("./src")
+sys.path.append("/home/biao/MORE_/src/")
+sys.path.append("/home/biao/MORE_/src/tasks/data_preprocessing")
 import os
 # os.environ["CUDA_VISIBLE_DEVICES"] = "3,4,5,6" 
 import collections
@@ -19,6 +20,7 @@ from tqdm import tqdm
 from param import args
 from tasks.more_model import MOREModel
 from tasks.data_preprocessing.data_preprocessing import MiniGridDataset
+from test_valid import ValidAtari
 
 HIDDEN_NUM = 20000
 FINAL_LEN = 20
@@ -28,7 +30,7 @@ DataTuple = collections.namedtuple("DataTuple", 'dataset loader')
 
 def get_data_tuple(splits: str, bs:int, device, data_path, shuffle = False, drop_last = True) -> DataTuple:
     # /home/zhangge/ZTY_Adam/data/
-    traj_dataset = MiniGridDataset(splits, path = data_path, max_length = 30, device = device)
+    traj_dataset = MiniGridDataset(splits, path = data_path, max_length = 1000, device = device)
     # a = len(traj_dataset)
     traj_data_loader = DataLoader(             
         traj_dataset,
@@ -60,7 +62,7 @@ class MORE:
             print("Let's use", torch.cuda.device_count(), "GPUs!")
         # GPU options
         if torch.cuda.is_available():
-            self.device = torch.device("cuda:1")
+            self.device = torch.device("cuda:3")
         else:
             print(
                 "Either an invalid device or CUDA is not available. Defaulting to CPU."
@@ -82,6 +84,7 @@ class MORE:
         # Model
         self.model = MOREModel() # Have already load the MORE_decoder weights
         self.model = self.model.to(self.device)
+        self.valid_atari = ValidAtari(self.device)
 
         # Optimizer
         if 'bert' in args.optim:
@@ -99,16 +102,24 @@ class MORE:
         self.output = args.output
         os.makedirs(self.output, exist_ok=True)
 
+    def valid(self):
+        self.load(self.output+'LAST')
+        self.valid_atari(self.model)
+
+
     def train(self, train_tuple, eval_tuple):
         dset, loader = train_tuple
         log_dir = "./log/train_more"
         # iter_wrapper = (lambda x: tqdm(x, total=len(loader))) if args.tqdm else (lambda x: x)
         best_valid = 100.
+        valid_score = 100.
         print_interval = 0.25
         steps_per_epoch = len(loader)
         # valid_score = self.validate(eval_tuple)
+        is_train = True
+        pbar = tqdm(enumerate(loader), total=len(loader)) if is_train else enumerate(loader)
         for epoch in range(args.epochs):
-            for idx, (lxmert_out, rtg, traj_mask, timesteps) in enumerate(loader):
+            for idx, (lxmert_out, rtg, traj_mask, timesteps) in pbar:
                 self.model.train()
                 self.optim.zero_grad()   #梯度归零
                 lxmert_out, traj_mask, rtg, timesteps = lxmert_out.to(self.device), traj_mask.to(self.device), rtg.to(self.device), timesteps.to(self.device)
@@ -117,8 +128,8 @@ class MORE:
                 loss.backward(retain_graph=True)  #反向传播
                 nn.utils.clip_grad_norm_(self.model.parameters(), 5.)  #解决梯度爆炸的问题
                 self.optim.step()  #参数更新
-
-                if (idx + 1) % int(steps_per_epoch * print_interval) == 0:
+                pbar.set_description(f"epoch {epoch+1} iter {idx}: train loss {loss.item():.5f}.")
+                if (idx + 1) % int(steps_per_epoch * print_interval) == 0 and False:
                     # 计算验证损失
                     valid_score = self.validate(eval_tuple)
                     if self.valid_tuple is not None:
@@ -130,6 +141,7 @@ class MORE:
                     else:
                         print(f"Epoch [{epoch+1}/{args.epochs}], Step [{idx+1}/{steps_per_epoch}], "
                             f"Training Loss: {loss.item():.5f}")
+            self.save("LAST")
             # log_str = "\nEpoch %d: Train %0.2f\n" % (epoch, evaluator.evaluate(quesid2ans) * 100.)
             log_str = ''
             if self.valid_tuple is not None:  # Do Validation on main process only
@@ -151,77 +163,13 @@ class MORE:
                 f.flush()
         # writer.close()
 
-        # self.save("LAST")
-    def validated(self):
-        if self.config.model_type == 'naive':
-                eval_return = self.get_returns(0)
-        elif self.config.model_type == 'reward_conditioned':
-            if self.config.game == 'Breakout':
-                eval_return = self.get_returns(90)
-            elif self.config.game == 'Seaquest':
-                eval_return = self.get_returns(1150)
-            elif self.config.game == 'Qbert':
-                eval_return = self.get_returns(14000)
-            elif self.config.game == 'Pong':
-                eval_return = self.get_returns(20)
-            else:
-                raise NotImplementedError()
-        else:
-            raise NotImplementedError()
-
-    def get_returns(self, ret):
-        self.model.train(False)
-        args=Args(self.config.game.lower(), self.config.seed)
-        env = Env(args)
-        env.eval()
-
-        T_rewards, T_Qs = [], []
-        done = True
-        for i in range(10):
-            state = env.reset()
-            state = state.type(torch.float32).to(self.device).unsqueeze(0).unsqueeze(0)
-            rtgs = [ret]
-            # first state is from env, first rtg is target return, and first timestep is 0
-            sampled_action = sample(self.model.module, state, 1, temperature=1.0, sample=True, actions=None, 
-                rtgs=torch.tensor(rtgs, dtype=torch.long).to(self.device).unsqueeze(0).unsqueeze(-1), 
-                timesteps=torch.zeros((1, 1, 1), dtype=torch.int64).to(self.device))
-
-            j = 0
-            all_states = state
-            actions = []
-            while True:
-                if done:
-                    state, reward_sum, done = env.reset(), 0, False
-                action = sampled_action.cpu().numpy()[0,-1]
-                actions += [sampled_action]
-                state, reward, done = env.step(action)
-                reward_sum += reward
-                j += 1
-
-                if done:
-                    T_rewards.append(reward_sum)
-                    break
-
-                state = state.unsqueeze(0).unsqueeze(0).to(self.device)
-
-                all_states = torch.cat([all_states, state], dim=0)
-
-                rtgs += [rtgs[-1] - reward]
-                # all_states has all previous states and rtgs has all previous rtgs (will be cut to block_size in utils.sample)
-                # timestep is just current timestep
-                sampled_action = sample(self.model.module, all_states.unsqueeze(0), 1, temperature=1.0, sample=True, 
-                    actions=torch.tensor(actions, dtype=torch.long).to(self.device).unsqueeze(1).unsqueeze(0), 
-                    rtgs=torch.tensor(rtgs, dtype=torch.long).to(self.device).unsqueeze(0).unsqueeze(-1), 
-                    timesteps=(min(j, self.config.max_timestep) * torch.ones((1, 1, 1), dtype=torch.int64).to(self.device)))
-        env.close()
-        eval_return = sum(T_rewards)/10.
-        print("target return: %d, eval return: %d" % (ret, eval_return))
-        self.model.train(True)
-        return eval_return
+        self.save("LAST")
+    
     
     # 验证函数
     def validate(self, loader):
         print ("begin valid!!")
+        self.valid_atari()
         self.model.eval()
         total_loss = 0
         with torch.no_grad():
@@ -283,93 +231,6 @@ class MORE:
         state_dict = torch.load("%s.pth" % path)
         self.model.load_state_dict(state_dict)
 
-class Env():
-    def __init__(self, args):
-        self.device = args.device
-        self.ale = atari_py.ALEInterface()
-        self.ale.setInt('random_seed', args.seed)
-        self.ale.setInt('max_num_frames_per_episode', args.max_episode_length)
-        self.ale.setFloat('repeat_action_probability', 0)  # Disable sticky actions
-        self.ale.setInt('frame_skip', 0)
-        self.ale.setBool('color_averaging', False)
-        self.ale.loadROM(atari_py.get_game_path(args.game))  # ROM loading must be done after setting options
-        actions = self.ale.getMinimalActionSet()
-        self.actions = dict([i, e] for i, e in zip(range(len(actions)), actions))
-        self.lives = 0  # Life counter (used in DeepMind training)
-        self.life_termination = False  # Used to check if resetting only from loss of life
-        self.window = args.history_length  # Number of frames to concatenate
-        self.state_buffer = deque([], maxlen=args.history_length)
-        self.training = True  # Consistent with model training mode
-
-    def _get_state(self):
-        state = cv2.resize(self.ale.getScreenGrayscale(), (84, 84), interpolation=cv2.INTER_LINEAR)
-        return torch.tensor(state, dtype=torch.float32, device=self.device).div_(255)
-
-    def _reset_buffer(self):
-        for _ in range(self.window):
-            self.state_buffer.append(torch.zeros(84, 84, device=self.device))
-
-    def reset(self):
-        if self.life_termination:
-            self.life_termination = False  # Reset flag
-            self.ale.act(0)  # Use a no-op after loss of life
-        else:
-            # Reset internals
-            self._reset_buffer()
-            self.ale.reset_game()
-            # Perform up to 30 random no-ops before starting
-            for _ in range(random.randrange(30)):
-                self.ale.act(0)  # Assumes raw action 0 is always no-op
-                if self.ale.game_over():
-                    self.ale.reset_game()
-        # Process and return "initial" state
-        observation = self._get_state()
-        self.state_buffer.append(observation)
-        self.lives = self.ale.lives()
-        return torch.stack(list(self.state_buffer), 0)
-
-    def step(self, action):
-        # Repeat action 4 times, max pool over last 2 frames
-        frame_buffer = torch.zeros(2, 84, 84, device=self.device)
-        reward, done = 0, False
-        for t in range(4):
-            reward += self.ale.act(self.actions.get(action))
-            if t == 2:
-                frame_buffer[0] = self._get_state()
-            elif t == 3:
-                frame_buffer[1] = self._get_state()
-            done = self.ale.game_over()
-            if done:
-                break
-        observation = frame_buffer.max(0)[0]
-        self.state_buffer.append(observation)
-        # Detect loss of life as terminal in training mode
-        if self.training:
-            lives = self.ale.lives()
-            if lives < self.lives and lives > 0:  # Lives > 0 for Q*bert
-                self.life_termination = not done  # Only set flag when not truly done
-                done = True
-            self.lives = lives
-        # Return state, reward, done
-        return torch.stack(list(self.state_buffer), 0), reward, done
-
-    # Uses loss of life as terminal signal
-    def train(self):
-        self.training = True
-
-    # Uses standard terminal signal
-    def eval(self):
-        self.training = False
-
-    def action_space(self):
-        return len(self.actions)
-
-    def render(self):
-        cv2.imshow('screen', self.ale.getScreenRGB()[:, :, ::-1])
-        cv2.waitKey(1)
-
-    def close(self):
-        cv2.destroyAllWindows()
 
 if __name__ == "__main__":
     # Build Class
@@ -378,6 +239,7 @@ if __name__ == "__main__":
     # Note: It is different from loading LXMERT pre-trained weights.
     if args.load is not None:
         more.load(args.load)
+    more.valid()
     more.train(
         more.train_tuple, 
         more.valid_tuple, 

@@ -3,6 +3,7 @@
 
 import torch.nn as nn
 import transformers
+from transformers.models.gpt2 import GPT2Tokenizer
 from param import args
 from lxrt.entry import LXRTEncoder,convert_sents_to_features
 from lxrt.modeling import BertLayerNorm, GeLU, MLPModel
@@ -33,6 +34,7 @@ class MOREModel(nn.Module):
         transformers.logging.set_verbosity_error()
         # Fix the last four layers of the model and train only the first two layers
         self.more_decoder = GPT2LMHeadModel.from_pretrained('gpt2', num_hidden_layers = HIDDEN_LAYERS)
+        self.tokenizer = GPT2Tokenizer.from_pretrained('gpt2')
         # for i, layer in enumerate(self.more_decoder.transformer.h):
         #     if i >= HIDDEN_LAYERS - 4:
         #         for param in layer.parameters():
@@ -57,5 +59,6 @@ class MOREModel(nn.Module):
         :return: (b, l, 50257) 
         """
         lxmert_out = self.compression_model(lxmert_out)
-        output = self.more_decoder(inputs_embeds = lxmert_out, labels = lxmert_out, attention_mask = traj_mask, position_ids = timesteps, rtg = rtg)        #Be sure to pay attention to whether the input sequences are of the same length  #past_key_values = past 后面有时间可以加上
+        output = self.more_decoder(inputs_embeds = lxmert_out, labels = lxmert_out, attention_mask = traj_mask, position_ids = timesteps, rtg = rtg, output_hidden_states=True)        #Be sure to pay attention to whether the input sequences are of the same length  #past_key_values = past 后面有时间可以加上
+        predicted_token = self.tokenizer.convert_tokens_to_string(output.logits)
         return output

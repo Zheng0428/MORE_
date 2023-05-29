@@ -2,6 +2,7 @@
 # Copyleft 2019 project LXRT.
 import sys
 sys.path.append("/home/biao/MORE_/src/")
+sys.path.append("/home/biao/MORE_/src/tasks/")
 sys.path.append("/home/biao/MORE_/src/tasks/data_preprocessing")
 import os
 # os.environ["CUDA_VISIBLE_DEVICES"] = "3,4,5,6" 
@@ -62,7 +63,7 @@ class MORE:
             print("Let's use", torch.cuda.device_count(), "GPUs!")
         # GPU options
         if torch.cuda.is_available():
-            self.device = torch.device("cuda:3")
+            self.device = torch.device("cuda:2")
         else:
             print(
                 "Either an invalid device or CUDA is not available. Defaulting to CPU."
@@ -223,6 +224,7 @@ class MORE:
         return evaluator.evaluate(quesid2ans)
 
     def save(self, name):
+        torch.save(self.model.compression_model.state_dict(), os.path.join(self.output, 'mlp_parameters.pth'))
         torch.save(self.model.state_dict(),
                    os.path.join(self.output, "%s.pth" % name))
 

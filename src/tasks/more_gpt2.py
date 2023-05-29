@@ -146,7 +146,8 @@ class LTMemory(nn.Module):
         value = torch.cat([value, rtg], dim=-1)
         key = self.comb_rtg_k(key)
         value = self.comb_rtg_v(value)
-        
+        if not self.training:
+            return key, value
         #compress key and value
         if len(self.cache_k) != 0:
             self.cache_k[-1] = self.compress_k(self.cache_k[-1])

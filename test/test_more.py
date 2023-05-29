@@ -177,7 +177,7 @@ class MORE:
              for i, (lxmert_out, rtg, traj_mask, timesteps) in enumerate(loader):
                 lxmert_out, traj_mask, rtg, timesteps = lxmert_out.to(self.device), traj_mask.to(self.device), rtg.to(self.device), timesteps.to(self.device)
                 outputs = self.model(lxmert_out, rtg, traj_mask, timesteps)
-                loss = outputs.loss
+                loss = outputs.loss 
                 total_loss += loss.item()
 
         return total_loss / len(loader)
